@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#dc2626">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Biblioteca para gerar PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body { font-family: 'Roboto', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        @page { size: A4; margin: 0; }
+        
+        /* Estilo para o Grid de Fotos */
+        .photo-upload-box {
+            position: relative;
+            background-color: #f3f4f6;
+            border: 2px dashed #d1d5db;
+            border-radius: 0.75rem;
+            padding-top: 100%; /* Aspect Ratio 1:1 */
+            overflow: hidden;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .photo-upload-box:hover {
+            border-color: #ef4444;
+            background-color: #fef2f2;
+        }
+        .photo-upload-box.has-image {
+            border-style: solid;
+            border-color: #ef4444;
+        }
+        .photo-content {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .photo-preview {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 pb-32">
+
+    <header class="bg-red-600 text-white p-4 sticky top-0 z-50 shadow-md flex justify-between items-center">
+        <div class="flex items-center gap-2">
+            <h1 class="text-lg font-bold tracking-wide">Relatório de Campo</h1>
+        </div>
+        <button id="reset-top" class="text-xs bg-red-700 hover:bg-red-800 px-3 py-1 rounded-full transition">
+            <i class="fas fa-eraser mr-1"></i> Limpar
+        </button>
+    </header>
+
+    <div class="container mx-auto p-4 max-w-md">
+        
+        <div class="bg-red-50 border-l-4 border-red-500 p-3 rounded-r mb-4 shadow-sm">
+            <h2 class="text-gray-800 font-bold text-sm">Registro de Atividade</h2>
+            <p class="text-red-800 text-xs">Preencha os dados e anexe as 6 fotos obrigatórias.</p>
+        </div>
+
+        <div class="space-y-4">
+            
+            <!-- Tipo e Produto -->
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                <h3 class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-3 flex items-center">
+                    <i class="fas fa-bullseye mr-2"></i> Ação
+                </h3>
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-xs text-gray-500 font-bold ml-1">Tipo: Exposição/Abordagem</label>
+                        <select id="tipo" class="w-full bg-gray-50 p-3 rounded-xl border border-gray-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 text-gray-700 text-sm transition appearance-none">
+                            <option value="">Selecione...</option>
+                            <option value="Exposição">Exposição</option>
+                            <option value="Abordagem">Abordagem</option>
+                            <option value="Treinamento">Treinamento</option>
+                            <option value="Visita de Relacionamento">Visita de Relacionamento</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 font-bold ml-1">Produto Foco</label>
+                        <input type="text" id="produto" placeholder="Ex: Geladeira BB53" class="w-full bg-gray-50 p-3 rounded-xl border border-gray-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 text-gray-700 text-sm transition">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dados da Loja -->
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                <h3 class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-3 flex items-center">
+                    <i class="fas fa-store mr-2"></i> Loja
+                </h3>
+                <div class="space-y-3">
+                    <input type="text" id="rede" placeholder="Rede" class="w-full bg-gray-50 p-3 rounded-xl border-none focus:ring-2 focus:ring-red-500 text-gray-700 text-sm transition">
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="text" id="id-rede" placeholder="ID Loja" class="w-full bg-gray-50 p-3 rounded-xl border-none focus:ring-2 focus:ring-red-500 text-gray-700 text-sm transition">
+                        <input type="text" id="filial" placeholder="Filial" class="w-full bg-gray-50 p-3 rounded-xl border-none focus:ring-2 focus:ring-red-500 text-gray-700 text-sm transition">
+                    </div>
+                    <input type="text" id="cidade" placeholder="Cidade" class="w-full bg-gray-50 p-3 rounded-xl border-none focus:ring-2 focus:ring-red-500 text-gray-700 text-sm transition">
+                </div>
+            </div>
+
+            <!-- Dados da Equipe -->
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                <h3 class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-3 flex items-center">
+                    <i class="fas fa-users mr-2"></i> Equipe
+                </h3>
+                <div class="space-y-3">
+                    <input type="text" id="coordenador" placeholder="Coordenador" class="w-full bg-gray-50 p-3 rounded-xl border-none focus:ring-2 focus:ring-red-500 text-gray-700 text-sm transition">
+                    <input type="text" id="consultor" placeholder="Consultor(a)" class="w-full bg-gray-50 p-3 rounded-xl border-none focus:ring-2 focus:ring-red-500 text-gray-700 text-sm transition">
+                    <input type="text" id="regional" placeholder="Regional" class="w-full bg-gray-50 p-3 rounded-xl border-none focus:ring-2 focus:ring-red-500 text-gray-700 text-sm transition">
+                    <div class="relative">
+                        <span class="absolute left-3 top-3 text-gray-400 text-xs font-bold">Data</span>
+                        <input type="date" id="data" class="w-full bg-gray-50 pt-6 pb-2 px-3 rounded-xl border-none focus:ring-2 focus:ring-red-500 text-gray-700 text-sm transition">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Galeria de Fotos -->
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-red-100">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-red-600 font-bold text-lg flex items-center">
+                        <i class="fas fa-camera mr-2"></i> Galeria
+                    </h3>
+                    <span id="photo-counter" class="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded font-bold">0/6 Fotos</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3" id="photo-grid">
+                    <!-- Gerado via JS -->
+                </div>
+                <!-- Inputs de arquivo ocultos -->
+                <div id="file-inputs-container" class="hidden"></div>
+            </div>
+
+        </div>
+        
+        <div class="h-8"></div>
+    </div>
+
+    <!-- Modal de Resultado -->
+    <div id="result-modal" class="fixed inset-0 bg-black bg-opacity-70 z-[60] hidden flex items-end sm:items-center justify-center backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md sm:rounded-2xl rounded-t-2xl shadow-2xl transform transition-transform duration-300 max-h-[95vh] flex flex-col">
+            
+            <div class="p-4 border-b flex justify-between items-center bg-gray-50 rounded-t-2xl">
+                <h3 class="font-bold text-gray-800">Enviar Relatório</h3>
+                <button id="close-modal" class="text-gray-500 hover:text-gray-700 bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="p-4 overflow-y-auto no-scrollbar">
+                
+                <!-- Preview do Texto -->
+                <div class="mb-4">
+                    <label class="text-xs font-bold text-gray-500 uppercase block mb-2">1. Dados (Texto)</label>
+                    <div id="text-preview" class="whitespace-pre-wrap text-xs bg-gray-100 text-gray-800 p-3 rounded-xl border border-gray-200 font-mono"></div>
+                </div>
+
+                <!-- Preview das Fotos Mini -->
+                <div class="mb-4">
+                    <label class="text-xs font-bold text-gray-500 uppercase block mb-2">2. Fotos Anexadas</label>
+                    <div class="grid grid-cols-6 gap-1" id="mini-gallery"></div>
+                </div>
+                
+                <div class="space-y-3">
+                    <button id="btn-share-text" class="w-full bg-green-600 text-white font-bold py-3 px-4 rounded-xl shadow hover:bg-green-700 transition flex items-center justify-center gap-2">
+                        <i class="fab fa-whatsapp text-xl"></i> 1. Enviar Texto no WhatsApp
+                    </button>
+                    
+                    <button id="btn-share-images" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-xl shadow hover:bg-blue-700 transition flex items-center justify-center gap-2">
+                        <i class="fas fa-images text-lg"></i> 2. Compartilhar Fotos
+                    </button>
+                    
+                    <button id="btn-generate-pdf" class="w-full bg-gray-700 text-white font-medium py-2 px-4 rounded-xl shadow hover:bg-gray-800 transition flex items-center justify-center gap-2 text-sm">
+                        <i class="fas fa-file-pdf"></i> Baixar PDF (Opcional)
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Botão Flutuante Principal -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-40">
+        <div class="max-w-md mx-auto">
+            <button id="generate-report" class="w-full bg-red-600 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-red-700 active:scale-95 transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                <i class="fas fa-check-circle mr-2"></i> Gerar Relatório
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const { jsPDF } = window.jspdf;
+        document.getElementById('data').valueAsDate = new Date();
+
+        // --- Gerenciamento de Fotos ---
+        const photoState = [null, null, null, null, null, null]; // Armazena os objetos File
+        const photoPreviews = [null, null, null, null, null, null]; // Armazena Base64 para preview
+
+        function initPhotoGrid() {
+            const grid = document.getElementById('photo-grid');
+            const inputsContainer = document.getElementById('file-inputs-container');
+            
+            grid.innerHTML = '';
+            inputsContainer.innerHTML = '';
+
+            for (let i = 0; i < 6; i++) {
+                // Cria o input file oculto
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.id = `file-${i}`;
+                input.accept = 'image/*';
+                input.className = 'hidden';
+                input.onchange = (e) => handleFileSelect(e, i);
+                inputsContainer.appendChild(input);
+
+                // Cria o box visual
+                const box = document.createElement('div');
+                box.className = 'photo-upload-box';
+                box.id = `box-${i}`;
+                box.onclick = () => document.getElementById(`file-${i}`).click();
+                
+                box.innerHTML = `
+                    <div class="photo-content">
+                        <i class="fas fa-camera text-gray-400 text-2xl mb-1"></i>
+                        <span class="text-xs text-gray-400 font-medium">Foto ${i + 1}</span>
+                    </div>
+                `;
+                grid.appendChild(box);
+            }
+        }
+
+        function handleFileSelect(event, index) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Salva o arquivo
+            photoState[index] = file;
+
+            // Cria preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                photoPreviews[index] = e.target.result;
+                const box = document.getElementById(`box-${index}`);
+                box.classList.add('has-image');
+                box.innerHTML = `
+                    <div class="photo-content">
+                        <img src="${e.target.result}" class="photo-preview rounded-lg">
+                        <div class="absolute bottom-1 right-1 bg-white rounded-full p-1 shadow">
+                            <i class="fas fa-sync text-red-500 text-xs"></i>
+                        </div>
+                    </div>
+                `;
+                updateCounter();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function updateCounter() {
+            const count = photoState.filter(f => f !== null).length;
+            const badge = document.getElementById('photo-counter');
+            badge.innerText = `${count}/6 Fotos`;
+            
+            if (count === 6) {
+                badge.className = "text-xs bg-green-100 text-green-700 px-2 py-1 rounded font-bold border border-green-200";
+            } else {
+                badge.className = "text-xs bg-red-50 text-red-600 px-2 py-1 rounded font-bold border border-red-100";
+            }
+        }
+
+        function formatarData(dataString) {
+            if (!dataString) return new Date().toLocaleDateString('pt-BR');
+            const [ano, mes, dia] = dataString.split('-');
+            return `${dia}/${mes}/${ano}`;
+        }
+
+        // --- Lógica de Geração do Relatório ---
+        
+        function coletarDados() {
+            return {
+                tipo: document.getElementById('tipo').value,
+                produto: document.getElementById('produto').value,
+                rede: document.getElementById('rede').value,
+                idRede: document.getElementById('id-rede').value,
+                filial: document.getElementById('filial').value,
+                cidade: document.getElementById('cidade').value,
+                coordenador: document.getElementById('coordenador').value,
+                consultor: document.getElementById('consultor').value,
+                regional: document.getElementById('regional').value,
+                data: formatarData(document.getElementById('data').value)
+            };
+        }
+
+        function validarFormulario(dados) {
+            const fotosCount = photoState.filter(f => f !== null).length;
+            if (fotosCount < 6) {
+                alert(`É obrigatório adicionar exatamente 6 fotos. Você adicionou ${fotosCount}.`);
+                return false;
+            }
+            if (!dados.tipo) { alert("Selecione o Tipo de Ação."); return false; }
+            if (!dados.rede) { alert("Preencha a Rede."); return false; }
+            return true;
+        }
+
+        function gerarTextoWhatsApp(dados) {
+            // Formato exato solicitado
+            return `*Tipo: Exposição/Abordagem:* ${dados.tipo}\n\n` +
+                   `*Rede:* ${dados.rede}\n` +
+                   `*ID:* ${dados.idRede}\n` +
+                   `*Filial:* ${dados.filial}\n` +
+                   `*Cidade:* ${dados.cidade}\n` +
+                   `*Produto:* ${dados.produto}\n` +
+                   `*Coordenador:* ${dados.coordenador}\n` +
+                   `*Consultor(a):* ${dados.consultor}\n` +
+                   `*Regional:* ${dados.regional}\n` +
+                   `*Data:* ${dados.data}`;
+        }
+
+        document.getElementById('generate-report').addEventListener('click', () => {
+            const dados = coletarDados();
+            if (!validarFormulario(dados)) return;
+
+            const texto = gerarTextoWhatsApp(dados);
+            
+            // Atualiza UI do Modal
+            document.getElementById('text-preview').textContent = texto;
+            
+            // Miniatura das fotos no modal
+            const miniGallery = document.getElementById('mini-gallery');
+            miniGallery.innerHTML = '';
+            photoPreviews.forEach(src => {
+                if (src) {
+                    const img = document.createElement('img');
+                    img.src = src;
+                    img.className = "w-full h-8 object-cover rounded border border-gray-300";
+                    miniGallery.appendChild(img);
+                }
+            });
+
+            // Configura Botão 1: Texto
+            const btnTexto = document.getElementById('btn-share-text');
+            btnTexto.onclick = () => {
+                const url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
+                window.open(url, '_blank');
+            };
+
+            // Configura Botão 2: Fotos
+            const btnImages = document.getElementById('btn-share-images');
+            
+            // Verifica se o navegador suporta compartilhamento de arquivos
+            if (navigator.share && navigator.canShare) {
+                btnImages.onclick = async () => {
+                    try {
+                        const filesArray = photoState.filter(f => f !== null);
+                        // Alguns navegadores exigem que os arquivos sejam compartilhados sozinhos, sem texto
+                        await navigator.share({
+                            files: filesArray
+                        });
+                    } catch (err) {
+                        console.log('Erro ao compartilhar ou cancelado:', err);
+                        // Se falhar (ex: cancelou), não faz nada ou mostra alert
+                    }
+                };
+                btnImages.classList.remove('hidden');
+            } else {
+                // Fallback para Desktop ou navegadores antigos
+                btnImages.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Envio de fotos manual`;
+                btnImages.onclick = () => {
+                    alert("Seu navegador não suporta envio direto de galeria. Por favor, abra o WhatsApp e anexe as 6 fotos manualmente.");
+                };
+                btnImages.className = "w-full bg-gray-400 text-white font-bold py-3 px-4 rounded-xl shadow cursor-not-allowed flex items-center justify-center gap-2";
+            }
+
+            // Configura Botão 3: PDF (Opcional)
+            document.getElementById('btn-generate-pdf').onclick = () => gerarPDF(dados);
+
+            document.getElementById('result-modal').classList.remove('hidden');
+        });
+
+        // --- Geração de PDF (Opcional / Backup) ---
+        async function gerarPDF(dados) {
+            const pdf = new jsPDF('portrait', 'mm', 'a4');
+            const pageWidth = pdf.internal.pageSize.width;
+            
+            // Cabeçalho
+            pdf.setFillColor(220, 38, 38);
+            pdf.rect(0, 0, pageWidth, 25, 'F');
+            pdf.setTextColor(255, 255, 255);
+            pdf.setFontSize(18);
+            pdf.setFont('helvetica', 'bold');
+            pdf.text('RELATÓRIO DE CAMPO', pageWidth / 2, 17, { align: 'center' });
+
+            let y = 35;
+            
+            // Texto dos dados
+            pdf.setTextColor(0, 0, 0);
+            pdf.setFontSize(11);
+            pdf.setFont('helvetica', 'bold');
+            
+            const addLine = (label, value) => {
+                pdf.setFont('helvetica', 'bold');
+                pdf.text(label, 20, y);
+                pdf.setFont('helvetica', 'normal');
+                pdf.text(value || '-', 70, y);
+                y += 7;
+            };
+
+            addLine('Tipo:', dados.tipo);
+            addLine('Produto:', dados.produto);
+            y += 3;
+            addLine('Rede:', dados.rede);
+            addLine('ID:', dados.idRede);
+            addLine('Filial:', dados.filial);
+            addLine('Cidade:', dados.cidade);
+            y += 3;
+            addLine('Coordenador:', dados.coordenador);
+            addLine('Consultor(a):', dados.consultor);
+            addLine('Regional:', dados.regional);
+            addLine('Data:', dados.data);
+
+            // Fotos no PDF
+            y += 10;
+            pdf.setFont('helvetica', 'bold');
+            pdf.text('REGISTRO FOTOGRÁFICO', 20, y);
+            y += 10;
+
+            const margin = 20;
+            const imgWidth = 80;
+            const imgHeight = 80;
+            const gap = 10;
+
+            // Renderiza 2 fotos por linha (total 3 linhas)
+            for (let i = 0; i < 6; i++) {
+                if (photoPreviews[i]) {
+                    const col = i % 2; // 0 ou 1
+                    const row = Math.floor(i / 2); // 0, 1, 2
+                    
+                    const xPos = margin + (col * (imgWidth + gap));
+                    const yPos = y + (row * (imgHeight + gap));
+
+                    // Verifica se precisa de nova página
+                    if (yPos + imgHeight > 280) {
+                        pdf.addPage();
+                        y = 20;
+                        // Recalcula posições para nova página
+                        // Simplificação: assume que 6 fotos cabem se começar no meio da pg 1
+                        // Se necessário, ajustar lógica complexa de paginação
+                    }
+
+                    try {
+                        pdf.addImage(photoPreviews[i], 'JPEG', xPos, yPos, imgWidth, imgHeight);
+                        pdf.setDrawColor(200, 200, 200);
+                        pdf.rect(xPos, yPos, imgWidth, imgHeight); // Borda
+                    } catch (e) {
+                        console.error("Erro ao adicionar imagem ao PDF", e);
+                    }
+                }
+            }
+
+            pdf.save(`Relatorio_${dados.rede}.pdf`);
+        }
+
+        // Utils
+        document.getElementById('close-modal').addEventListener('click', () => {
+            document.getElementById('result-modal').classList.add('hidden');
+        });
+
+        document.getElementById('reset-top').addEventListener('click', () => {
+            if(confirm('Limpar tudo?')) location.reload();
+        });
+
+        // Inicializa Grid
+        initPhotoGrid();
+
+    </script>
+</body>
+</html>
+
+
