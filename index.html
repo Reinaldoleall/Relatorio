@@ -20,6 +20,9 @@
             background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
             border: 1px solid #d1d5db;
         }
+        .pdf-header {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        }
     </style>
 </head>
 <body class="bg-gray-100 pb-24">
@@ -91,14 +94,18 @@
                             </div>
                         </div>
                         
-                        <div class="grid grid-cols-2 gap-3 mb-2">
+                        <div class="grid grid-cols-3 gap-2 mb-2">
                             <div class="category-badge rounded-lg p-3 text-center">
                                 <label class="text-xs text-gray-500 font-medium mb-1 block">Lavadoras</label>
-                                <input type="number" data-marca="Panasonic" data-categoria="lavadoras" placeholder="0" class="w-full text-center bg-transparent border-none text-lg font-bold text-gray-700 focus:outline-none" inputmode="numeric">
+                                <input type="number" data-marca="Panasonic" data-categoria="lavadoras" placeholder="0" class="w-full text-center bg-transparent border-none text-lg font-bold text-gray-700 focus:outline-none" inputmode="numeric" min="0">
                             </div>
                             <div class="category-badge rounded-lg p-3 text-center">
                                 <label class="text-xs text-gray-500 font-medium mb-1 block">Refrigeradores</label>
-                                <input type="number" data-marca="Panasonic" data-categoria="refrigeradores" placeholder="0" class="w-full text-center bg-transparent border-none text-lg font-bold text-gray-700 focus:outline-none" inputmode="numeric">
+                                <input type="number" data-marca="Panasonic" data-categoria="refrigeradores" placeholder="0" class="w-full text-center bg-transparent border-none text-lg font-bold text-gray-700 focus:outline-none" inputmode="numeric" min="0">
+                            </div>
+                            <div class="category-badge rounded-lg p-3 text-center">
+                                <label class="text-xs text-gray-500 font-medium mb-1 block">Built-in</label>
+                                <input type="number" data-marca="Panasonic" data-categoria="builtin" placeholder="0" class="w-full text-center bg-transparent border-none text-lg font-bold text-gray-700 focus:outline-none" inputmode="numeric" min="0">
                             </div>
                         </div>
                         <div class="text-xs text-gray-400 text-center mt-1">
@@ -170,90 +177,116 @@
         const { jsPDF } = window.jspdf;
         document.getElementById('data').valueAsDate = new Date();
 
-        // Template para marcas concorrentes
-        const competitorTemplate = (brandName) => `
-            <div class="brand-category bg-gray-50 border border-gray-200 rounded-xl p-4 relative">
-                <button type="button" class="remove-brand absolute top-2 right-2 text-red-400 hover:text-red-600 p-1">
-                    <i class="fas fa-times"></i>
-                </button>
-                <div class="flex items-center mb-3">
-                    <div class="relative w-full">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="fas fa-tag text-gray-400"></i>
+        // Template para marcas concorrentes com nome dinâmico
+        const competitorTemplate = () => {
+            const container = document.getElementById('brands-container');
+            const competitorCount = container.querySelectorAll('.brand-category:not(:first-child)').length + 1;
+            return `
+                <div class="brand-category bg-white border border-gray-200 rounded-xl p-4 relative shadow-sm">
+                    <button type="button" class="remove-brand absolute top-2 right-2 text-red-400 hover:text-red-600 p-1 z-10">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div class="flex items-center mb-3">
+                        <div class="relative w-full">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-tag text-gray-400"></i>
+                            </div>
+                            <input type="text" class="brand-name w-full pl-9 pr-3 py-3 bg-gray-50 rounded-xl border border-gray-300 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none transition text-gray-700" placeholder="Digite o nome da marca" value="Marca ${competitorCount}">
                         </div>
-                        <input type="text" value="${brandName}" class="brand-name w-full pl-9 pr-3 py-3 bg-white rounded-xl border border-gray-300 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none transition text-gray-700" placeholder="Nome da Marca">
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-2">
+                        <div class="category-badge rounded-lg p-3 text-center">
+                            <label class="text-xs text-gray-500 font-medium mb-1 block">Lavadoras</label>
+                            <input type="number" data-categoria="lavadoras" placeholder="0" class="quantity-input w-full text-center bg-transparent border-none text-lg font-bold text-gray-700 focus:outline-none" inputmode="numeric" min="0">
+                        </div>
+                        <div class="category-badge rounded-lg p-3 text-center">
+                            <label class="text-xs text-gray-500 font-medium mb-1 block">Refrigeradores</label>
+                            <input type="number" data-categoria="refrigeradores" placeholder="0" class="quantity-input w-full text-center bg-transparent border-none text-lg font-bold text-gray-700 focus:outline-none" inputmode="numeric" min="0">
+                        </div>
+                        <div class="category-badge rounded-lg p-3 text-center">
+                            <label class="text-xs text-gray-500 font-medium mb-1 block">Built-in</label>
+                            <input type="number" data-categoria="builtin" placeholder="0" class="quantity-input w-full text-center bg-transparent border-none text-lg font-bold text-gray-700 focus:outline-none" inputmode="numeric" min="0">
+                        </div>
                     </div>
                 </div>
-                
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="category-badge rounded-lg p-3 text-center">
-                        <label class="text-xs text-gray-500 font-medium mb-1 block">Lavadoras</label>
-                        <input type="number" data-marca="${brandName}" data-categoria="lavadoras" placeholder="0" class="w-full text-center bg-transparent border-none text-lg font-bold text-gray-700 focus:outline-none" inputmode="numeric">
-                    </div>
-                    <div class="category-badge rounded-lg p-3 text-center">
-                        <label class="text-xs text-gray-500 font-medium mb-1 block">Refrigeradores</label>
-                        <input type="number" data-marca="${brandName}" data-categoria="refrigeradores" placeholder="0" class="w-full text-center bg-transparent border-none text-lg font-bold text-gray-700 focus:outline-none" inputmode="numeric">
-                    </div>
-                </div>
-            </div>
-        `;
+            `;
+        };
 
         // Adicionar marca concorrente
         document.getElementById('add-brand').addEventListener('click', function() {
             const container = document.getElementById('brands-container');
             const newBrand = document.createElement('div');
             newBrand.className = 'animate-fade-in';
-            newBrand.innerHTML = competitorTemplate(`Marca ${container.children.length}`);
+            newBrand.innerHTML = competitorTemplate();
             container.appendChild(newBrand);
-            newBrand.querySelector('.brand-name').focus();
+            newBrand.querySelector('.brand-name').select();
         });
 
         // Remover marca (exceto Panasonic)
         document.getElementById('brands-container').addEventListener('click', function(e) {
             if (e.target.closest('.remove-brand')) {
                 const brandDiv = e.target.closest('.brand-category');
-                if (!brandDiv.querySelector('.brand-name') || !brandDiv.querySelector('.brand-name').value.includes('Panasonic')) {
+                const brandName = brandDiv.querySelector('.brand-name').value;
+                if (!brandName.includes('Panasonic')) {
                     brandDiv.remove();
+                    // Renumerar marcas restantes
+                    updateBrandNumbers();
                 }
             }
         });
 
-        // Coletar dados das marcas
+        // Atualizar números das marcas
+        function updateBrandNumbers() {
+            const competitors = document.querySelectorAll('.brand-category:not(:first-child) .brand-name');
+            competitors.forEach((input, index) => {
+                const currentValue = input.value;
+                // Se for "Marca X", atualiza o número
+                if (currentValue.match(/^Marca \d+$/)) {
+                    input.value = `Marca ${index + 1}`;
+                }
+            });
+        }
+
+        // Coletar dados das marcas CORRETAMENTE
         function coletarDadosMarcas() {
             const brandsData = {};
-            const inputs = document.querySelectorAll('#brands-container input[data-marca]');
             
-            inputs.forEach(input => {
-                const marca = input.dataset.marca;
-                const categoria = input.dataset.categoria;
-                const quantidade = parseInt(input.value) || 0;
+            // Coletar Panasonic primeiro
+            const panasonicDiv = document.querySelector('.brand-category:first-child');
+            const panasonicName = 'Panasonic';
+            brandsData[panasonicName] = {
+                lavadoras: parseInt(panasonicDiv.querySelector('[data-categoria="lavadoras"]').value) || 0,
+                refrigeradores: parseInt(panasonicDiv.querySelector('[data-categoria="refrigeradores"]').value) || 0,
+                builtin: parseInt(panasonicDiv.querySelector('[data-categoria="builtin"]').value) || 0,
+                total: 0
+            };
+            brandsData[panasonicName].total = brandsData[panasonicName].lavadoras + 
+                                             brandsData[panasonicName].refrigeradores + 
+                                             brandsData[panasonicName].builtin;
+            
+            // Coletar marcas concorrentes
+            const competitorDivs = document.querySelectorAll('.brand-category:not(:first-child)');
+            competitorDivs.forEach(div => {
+                const brandNameInput = div.querySelector('.brand-name');
+                const brandName = brandNameInput.value.trim() || 'Sem nome';
                 
-                if (!brandsData[marca]) {
-                    brandsData[marca] = {
-                        lavadoras: 0,
-                        refrigeradores: 0,
-                        total: 0
-                    };
-                }
+                brandsData[brandName] = {
+                    lavadoras: parseInt(div.querySelector('[data-categoria="lavadoras"]').value) || 0,
+                    refrigeradores: parseInt(div.querySelector('[data-categoria="refrigeradores"]').value) || 0,
+                    builtin: parseInt(div.querySelector('[data-categoria="builtin"]').value) || 0,
+                    total: 0
+                };
                 
-                brandsData[marca][categoria] = quantidade;
-                brandsData[marca].total += quantidade;
+                brandsData[brandName].total = brandsData[brandName].lavadoras + 
+                                             brandsData[brandName].refrigeradores + 
+                                             brandsData[brandName].builtin;
             });
             
-            // Atualizar nomes das marcas dos inputs dinâmicos
-            document.querySelectorAll('#brands-container .brand-category:not(:first-child) .brand-name').forEach(input => {
-                const marcaAtual = input.dataset.marca;
-                const novaMarca = input.value.trim() || marcaAtual;
-                
-                if (brandsData[marcaAtual] && marcaAtual !== novaMarca) {
-                    brandsData[novaMarca] = brandsData[marcaAtual];
-                    delete brandsData[marcaAtual];
-                    
-                    // Atualizar data-marca nos inputs de quantidade
-                    const brandDiv = input.closest('.brand-category');
-                    brandDiv.querySelectorAll('input[type="number"]').forEach(numInput => {
-                        numInput.dataset.marca = novaMarca;
-                    });
+            // Remover marcas com total 0 (exceto Panasonic)
+            Object.keys(brandsData).forEach(marca => {
+                if (marca !== 'Panasonic' && brandsData[marca].total === 0) {
+                    delete brandsData[marca];
                 }
             });
             
@@ -264,14 +297,16 @@
             let totalGeral = 0;
             let totalLavadoras = 0;
             let totalRefrigeradores = 0;
+            let totalBuiltin = 0;
             
             Object.values(brandsData).forEach(data => {
                 totalLavadoras += data.lavadoras;
                 totalRefrigeradores += data.refrigeradores;
+                totalBuiltin += data.builtin;
                 totalGeral += data.total;
             });
             
-            return { totalGeral, totalLavadoras, totalRefrigeradores };
+            return { totalGeral, totalLavadoras, totalRefrigeradores, totalBuiltin };
         }
 
         function calcularPorcentagem(valor, total) {
@@ -290,24 +325,25 @@
             // Ordenar marcas (Panasonic primeiro, depois por total)
             const marcasOrdenadas = Object.entries(brandsData)
                 .sort(([nomeA, dataA], [nomeB, dataB]) => {
-                    if (nomeA.toUpperCase().includes('PANASONIC')) return -1;
-                    if (nomeB.toUpperCase().includes('PANASONIC')) return 1;
+                    if (nomeA.toUpperCase() === 'PANASONIC') return -1;
+                    if (nomeB.toUpperCase() === 'PANASONIC') return 1;
                     return dataB.total - dataA.total;
                 });
             
             marcasOrdenadas.forEach(([marca, data]) => {
-                const isPanasonic = marca.toUpperCase().includes('PANASONIC');
+                const isPanasonic = marca.toUpperCase() === 'PANASONIC';
                 const pctTotal = calcularPorcentagem(data.total, totais.totalGeral);
                 const pctLav = calcularPorcentagem(data.lavadoras, totais.totalLavadoras);
                 const pctRef = calcularPorcentagem(data.refrigeradores, totais.totalRefrigeradores);
+                const pctBuilt = calcularPorcentagem(data.builtin, totais.totalBuiltin);
                 
                 html += `
-                    <div class="${isPanasonic ? 'bg-yellow-50 border-l-4 border-yellow-400' : 'bg-white'} p-3 rounded-lg mb-2">
+                    <div class="${isPanasonic ? 'bg-yellow-50 border-l-4 border-yellow-400' : 'bg-white'} p-3 rounded-lg mb-2 shadow-sm">
                         <div class="flex justify-between items-center mb-2">
                             <span class="font-bold ${isPanasonic ? 'text-yellow-700' : 'text-gray-700'}">${marca}</span>
                             <span class="font-bold text-red-600">${pctTotal}%</span>
                         </div>
-                        <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div class="grid grid-cols-3 gap-2 text-xs">
                             <div class="text-center">
                                 <div class="text-gray-500">Lavadoras</div>
                                 <div class="font-semibold">${data.lavadoras} <span class="text-blue-600">(${pctLav}%)</span></div>
@@ -316,6 +352,10 @@
                                 <div class="text-gray-500">Refrigeradores</div>
                                 <div class="font-semibold">${data.refrigeradores} <span class="text-green-600">(${pctRef}%)</span></div>
                             </div>
+                            <div class="text-center">
+                                <div class="text-gray-500">Built-in</div>
+                                <div class="font-semibold">${data.builtin} <span class="text-purple-600">(${pctBuilt}%)</span></div>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -323,7 +363,7 @@
             
             html += `
                 <div class="mt-3 pt-3 border-t border-gray-300">
-                    <div class="grid grid-cols-3 gap-2 text-center text-sm">
+                    <div class="grid grid-cols-4 gap-2 text-center text-sm">
                         <div>
                             <div class="text-gray-500">Total Geral</div>
                             <div class="font-bold text-lg text-gray-800">${totais.totalGeral}</div>
@@ -335,6 +375,10 @@
                         <div>
                             <div class="text-gray-500">Refrigeradores</div>
                             <div class="font-bold text-lg text-green-600">${totais.totalRefrigeradores}</div>
+                        </div>
+                        <div>
+                            <div class="text-gray-500">Built-in</div>
+                            <div class="font-bold text-lg text-purple-600">${totais.totalBuiltin}</div>
                         </div>
                     </div>
                 </div>
@@ -359,13 +403,13 @@
             }
             
             relatorio += `*PARTICIPAÇÃO POR MARCA*\n`;
-            relatorio += `═`.repeat(30) + `\n`;
+            relatorio += `═`.repeat(40) + `\n`;
             
             // Ordenar marcas
             const marcasOrdenadas = Object.entries(brandsData)
                 .sort(([nomeA, dataA], [nomeB, dataB]) => {
-                    if (nomeA.toUpperCase().includes('PANASONIC')) return -1;
-                    if (nomeB.toUpperCase().includes('PANASONIC')) return 1;
+                    if (nomeA.toUpperCase() === 'PANASONIC') return -1;
+                    if (nomeB.toUpperCase() === 'PANASONIC') return 1;
                     return dataB.total - dataA.total;
                 });
             
@@ -374,13 +418,15 @@
                 relatorio += `\n*${marca}* - ${pctTotal}%\n`;
                 relatorio += `  Lavadoras: ${data.lavadoras} (${calcularPorcentagem(data.lavadoras, totais.totalLavadoras)}%)\n`;
                 relatorio += `  Refrigeradores: ${data.refrigeradores} (${calcularPorcentagem(data.refrigeradores, totais.totalRefrigeradores)}%)\n`;
+                relatorio += `  Built-in: ${data.builtin} (${calcularPorcentagem(data.builtin, totais.totalBuiltin)}%)\n`;
             });
             
-            relatorio += `\n` + `═`.repeat(30) + `\n`;
+            relatorio += `\n` + `═`.repeat(40) + `\n`;
             relatorio += `*TOTAIS GERAIS*\n`;
             relatorio += `Total de Produtos: ${totais.totalGeral}\n`;
             relatorio += `Lavadoras: ${totais.totalLavadoras}\n`;
             relatorio += `Refrigeradores: ${totais.totalRefrigeradores}\n`;
+            relatorio += `Built-in: ${totais.totalBuiltin}\n`;
             relatorio += `\n_Relatório gerado em ${new Date().toLocaleString('pt-BR')}_`;
             
             return relatorio;
@@ -390,59 +436,62 @@
             const pdf = new jsPDF('portrait', 'mm', 'a4');
             const pageWidth = pdf.internal.pageSize.width;
             
-            // Cabeçalho com FLOORSHARE
+            // Cabeçalho profissional
             pdf.setFillColor(220, 38, 38);
-            pdf.rect(0, 0, pageWidth, 25, 'F');
+            pdf.rect(0, 0, pageWidth, 30, 'F');
+            
+            // Logo/título
             pdf.setTextColor(255, 255, 255);
-            pdf.setFontSize(20);
-            pdf.setFont(undefined, 'bold');
-            pdf.text('FLOORSHARE LINHA BRANCA', pageWidth / 2, 15, { align: 'center' });
+            pdf.setFontSize(24);
+            pdf.setFont('helvetica', 'bold');
+            pdf.text('FLOORSHARE', pageWidth / 2, 15, { align: 'center' });
             
-            pdf.setFontSize(10);
-            pdf.text('Relatório de Participação no Ponto de Venda', pageWidth / 2, 22, { align: 'center' });
+            pdf.setFontSize(14);
+            pdf.text('LINHA BRANCA - RELATÓRIO DE PARTICIPAÇÃO', pageWidth / 2, 22, { align: 'center' });
             
-            let y = 35;
+            pdf.setFontSize(9);
+            pdf.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, pageWidth / 2, 28, { align: 'center' });
+            
+            let y = 40;
             
             // Dados da Rede
             pdf.setTextColor(0, 0, 0);
-            pdf.setFontSize(12);
-            pdf.setFont(undefined, 'bold');
+            pdf.setFontSize(11);
+            pdf.setFont('helvetica', 'bold');
             pdf.text('DADOS DA REDE', 20, y);
-            y += 8;
+            y += 7;
             
-            pdf.setFont(undefined, 'normal');
+            pdf.setFont('helvetica', 'normal');
             pdf.setFontSize(10);
             pdf.text(`Rede: ${dados.rede}`, 20, y);
-            y += 6;
-            pdf.text(`ID: ${dados.idRede}`, 20, y);
-            y += 6;
+            pdf.text(`ID: ${dados.idRede}`, 110, y);
+            y += 5;
+            
             pdf.text(`Filial: ${dados.filial}`, 20, y);
-            y += 6;
-            pdf.text(`Cidade: ${dados.cidade}`, 20, y);
+            pdf.text(`Cidade: ${dados.cidade}`, 110, y);
             y += 10;
             
             // Dados da Equipe
-            pdf.setFont(undefined, 'bold');
+            pdf.setFont('helvetica', 'bold');
             pdf.text('EQUIPE', 20, y);
-            y += 8;
+            y += 7;
             
-            pdf.setFont(undefined, 'normal');
+            pdf.setFont('helvetica', 'normal');
             pdf.text(`Coordenador: ${dados.coordenador}`, 20, y);
-            y += 6;
-            pdf.text(`Consultor(a): ${dados.consultor}`, 20, y);
-            y += 6;
+            pdf.text(`Consultor(a): ${dados.consultor}`, 110, y);
+            y += 5;
+            
             pdf.text(`Regional: ${dados.regional}`, 20, y);
-            y += 6;
-            pdf.text(`Data: ${dados.data}`, 20, y);
+            pdf.text(`Data: ${dados.data}`, 110, y);
             y += 15;
             
             // Observações
             if (dados.observacoes) {
-                pdf.setFont(undefined, 'bold');
+                pdf.setFont('helvetica', 'bold');
                 pdf.text('OBSERVAÇÕES', 20, y);
-                y += 8;
+                y += 7;
                 
-                pdf.setFont(undefined, 'normal');
+                pdf.setFont('helvetica', 'normal');
                 const obsLines = pdf.splitTextToSize(dados.observacoes, pageWidth - 40);
                 obsLines.forEach(line => {
                     if (y > 250) {
@@ -455,33 +504,36 @@
                 y += 10;
             }
             
-            // Tabela de Participação
-            pdf.setFont(undefined, 'bold');
+            // Título da tabela
+            pdf.setFont('helvetica', 'bold');
             pdf.setFontSize(14);
-            pdf.text('PARTICIPAÇÃO POR MARCA', pageWidth / 2, y, { align: 'center' });
+            pdf.text('ANÁLISE DE PARTICIPAÇÃO POR MARCA', pageWidth / 2, y, { align: 'center' });
             y += 10;
             
             // Ordenar marcas
             const marcasOrdenadas = Object.entries(brandsData)
                 .sort(([nomeA, dataA], [nomeB, dataB]) => {
-                    if (nomeA.toUpperCase().includes('PANASONIC')) return -1;
-                    if (nomeB.toUpperCase().includes('PANASONIC')) return 1;
+                    if (nomeA.toUpperCase() === 'PANASONIC') return -1;
+                    if (nomeB.toUpperCase() === 'PANASONIC') return 1;
                     return dataB.total - dataA.total;
                 });
             
-            const startX = 20;
+            const startX = 15;
             let tableY = y;
             
             // Cabeçalho da tabela
             pdf.setFillColor(240, 240, 240);
-            pdf.rect(startX, tableY, pageWidth - 40, 8, 'F');
+            pdf.rect(startX, tableY, pageWidth - 30, 8, 'F');
             pdf.setFontSize(9);
             pdf.setTextColor(0, 0, 0);
-            pdf.text('Marca', startX + 2, tableY + 6);
-            pdf.text('Lavadoras', startX + 50, tableY + 6);
-            pdf.text('Refrigeradores', startX + 85, tableY + 6);
-            pdf.text('Total', startX + 130, tableY + 6);
-            pdf.text('%', startX + 155, tableY + 6);
+            
+            pdf.text('MARCA', startX + 2, tableY + 6);
+            pdf.text('LAVADORAS', startX + 45, tableY + 6);
+            pdf.text('REFRIG.', startX + 70, tableY + 6);
+            pdf.text('BUILT-IN', startX + 95, tableY + 6);
+            pdf.text('TOTAL', startX + 120, tableY + 6);
+            pdf.text('%', startX + 140, tableY + 6);
+            pdf.text('PARTICIPAÇÃO', startX + 150, tableY + 6);
             
             tableY += 10;
             
@@ -490,56 +542,113 @@
                 if (tableY > 270) {
                     pdf.addPage();
                     tableY = 20;
+                    // Recriar cabeçalho da tabela
+                    pdf.setFillColor(240, 240, 240);
+                    pdf.rect(startX, tableY - 10, pageWidth - 30, 8, 'F');
+                    pdf.text('MARCA', startX + 2, tableY - 4);
+                    pdf.text('LAVADORAS', startX + 45, tableY - 4);
+                    pdf.text('REFRIG.', startX + 70, tableY - 4);
+                    pdf.text('BUILT-IN', startX + 95, tableY - 4);
+                    pdf.text('TOTAL', startX + 120, tableY - 4);
+                    pdf.text('%', startX + 140, tableY - 4);
+                    pdf.text('PARTICIPAÇÃO', startX + 150, tableY - 4);
+                    tableY += 10;
                 }
                 
-                const isPanasonic = marca.toUpperCase().includes('PANASONIC');
+                const isPanasonic = marca.toUpperCase() === 'PANASONIC';
                 
                 if (isPanasonic) {
                     pdf.setFillColor(255, 253, 231);
-                    pdf.rect(startX, tableY - 2, pageWidth - 40, 10, 'F');
+                    pdf.rect(startX, tableY - 2, pageWidth - 30, 10, 'F');
                 }
                 
-                pdf.setFont(undefined, isPanasonic ? 'bold' : 'normal');
+                pdf.setFont('helvetica', isPanasonic ? 'bold' : 'normal');
                 pdf.text(marca, startX + 2, tableY + 6);
-                pdf.text(data.lavadoras.toString(), startX + 50, tableY + 6);
-                pdf.text(data.refrigeradores.toString(), startX + 85, tableY + 6);
-                pdf.text(data.total.toString(), startX + 130, tableY + 6);
+                pdf.text(data.lavadoras.toString(), startX + 45, tableY + 6);
+                pdf.text(data.refrigeradores.toString(), startX + 70, tableY + 6);
+                pdf.text(data.builtin.toString(), startX + 95, tableY + 6);
+                pdf.text(data.total.toString(), startX + 120, tableY + 6);
                 
                 const pctTotal = calcularPorcentagem(data.total, totais.totalGeral);
-                pdf.text(`${pctTotal}%`, startX + 155, tableY + 6);
+                pdf.text(`${pctTotal}%`, startX + 140, tableY + 6);
                 
                 // Barra de participação
-                const barWidth = (pctTotal / 100) * 30;
-                pdf.setFillColor(220, 38, 38, isPanasonic ? 0.5 : 0.3);
-                pdf.rect(startX + 160, tableY + 2, barWidth, 4, 'F');
+                const barWidth = (pctTotal / 100) * 40;
+                const barColor = isPanasonic ? [255, 193, 7] : [220, 38, 38];
+                pdf.setFillColor(...barColor, isPanasonic ? 0.7 : 0.5);
+                pdf.rect(startX + 150, tableY + 2, barWidth, 4, 'F');
                 
                 tableY += 10;
             });
             
-            // Totais
+            // Linha separadora
             tableY += 5;
             pdf.setDrawColor(0, 0, 0);
-            pdf.setLineWidth(0.5);
-            pdf.line(startX, tableY, startX + (pageWidth - 40), tableY);
-            tableY += 10;
+            pdf.setLineWidth(0.3);
+            pdf.line(startX, tableY, startX + (pageWidth - 30), tableY);
+            tableY += 8;
             
-            pdf.setFont(undefined, 'bold');
+            // Totais
+            pdf.setFont('helvetica', 'bold');
             pdf.setFontSize(11);
             pdf.text('TOTAIS GERAIS:', startX + 2, tableY);
-            pdf.text(`${totais.totalGeral}`, startX + 130, tableY);
+            pdf.text(`${totais.totalGeral}`, startX + 120, tableY);
             
             tableY += 7;
-            pdf.setFont(undefined, 'normal');
+            pdf.setFont('helvetica', 'normal');
             pdf.setFontSize(10);
-            pdf.text(`Lavadoras: ${totais.totalLavadoras}`, startX + 10, tableY);
-            pdf.text(`Refrigeradores: ${totais.totalRefrigeradores}`, startX + 80, tableY);
+            
+            pdf.setFillColor(59, 130, 246, 0.1);
+            pdf.rect(startX, tableY - 2, 55, 6, 'F');
+            pdf.text(`Lavadoras: ${totais.totalLavadoras}`, startX + 5, tableY + 3);
+            
+            pdf.setFillColor(34, 197, 94, 0.1);
+            pdf.rect(startX + 60, tableY - 2, 55, 6, 'F');
+            pdf.text(`Refrigeradores: ${totais.totalRefrigeradores}`, startX + 65, tableY + 3);
+            
+            pdf.setFillColor(168, 85, 247, 0.1);
+            pdf.rect(startX + 120, tableY - 2, 55, 6, 'F');
+            pdf.text(`Built-in: ${totais.totalBuiltin}`, startX + 125, tableY + 3);
+            
+            // Gráfico de pizza simplificado
+            tableY += 15;
+            if (totais.totalGeral > 0 && marcasOrdenadas.length <= 5) {
+                pdf.setFont('helvetica', 'bold');
+                pdf.setFontSize(11);
+                pdf.text('DISTRIBUIÇÃO POR MARCA', pageWidth / 2, tableY, { align: 'center' });
+                tableY += 8;
+                
+                // Legenda
+                let legendX = 20;
+                const legendY = tableY;
+                marcasOrdenadas.forEach(([marca], index) => {
+                    if (legendX > 150) {
+                        legendX = 20;
+                        tableY += 15;
+                    }
+                    
+                    const colors = [
+                        [220, 38, 38],    // Vermelho
+                        [59, 130, 246],   // Azul
+                        [34, 197, 94],    // Verde
+                        [245, 158, 11],   // Amarelo
+                        [168, 85, 247]    // Roxo
+                    ];
+                    
+                    pdf.setFillColor(...colors[index % colors.length]);
+                    pdf.rect(legendX, tableY, 3, 3, 'F');
+                    pdf.setFontSize(8);
+                    pdf.text(marca, legendX + 6, tableY + 2);
+                    legendX += 50;
+                });
+            }
             
             // Rodapé
             pdf.setFontSize(8);
             pdf.setTextColor(100, 100, 100);
-            pdf.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, pageWidth / 2, 290, { align: 'center' });
+            pdf.text('© Floorshare - Relatório Gerado Automaticamente', pageWidth / 2, 290, { align: 'center' });
             
-            pdf.save(`floorshare_${dados.data.replace(/\//g, '_')}.pdf`);
+            pdf.save(`Floorshare_${dados.rede.replace(/\s+/g, '_')}_${dados.data.replace(/\//g, '-')}.pdf`);
         }
 
         document.getElementById('generate-report').addEventListener('click', function() {
