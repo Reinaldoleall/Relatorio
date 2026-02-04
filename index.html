@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#dc2626">
+    <title>Menu Principal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Roboto', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        /* Animação de entrada */
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Estilo do Iframe para parecer nativo */
+        #app-frame {
+            width: 100%;
+            height: calc(100vh - 60px); /* Altura total menos o header de voltar */
+            border: none;
+            display: none;
+        }
+
+        /* Container do Menu */
+        #menu-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <!-- MENU PRINCIPAL -->
+    <div id="menu-container" class="fade-in">
+        
+        <!-- Cabeçalho do Menu -->
+        <header class="bg-red-600 text-white p-6 rounded-b-[2.5rem] shadow-lg mb-6 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-10">
+                <i class="fas fa-chart-line text-8xl"></i>
+            </div>
+            <div class="relative z-10">
+                <h1 class="text-2xl font-bold tracking-wide">Floorshare</h1>
+                <p class="text-red-100 text-sm mt-1">Selecione o relatório desejado</p>
+            </div>
+        </header>
+
+        <!-- Grid de Opções -->
+        <div class="container mx-auto px-4 max-w-md flex-1 flex flex-col justify-center gap-4 mb-10">
+            
+            <!-- Botão 1: Controle de Share -->
+            <button onclick="abrirApp('floorshare.html', 'Controle de Share')" class="bg-white p-6 rounded-2xl shadow-md border-l-4 border-blue-500 hover:shadow-xl hover:scale-[1.02] transition-all text-left group">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                            <i class="fas fa-chart-pie text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-800 text-lg">Controle de Share</h3>
+                            <p class="text-gray-400 text-xs">Contagem de marcas e %</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-300"></i>
+                </div>
+            </button>
+
+            <!-- Botão 2: Relatório de Fotos -->
+            <button onclick="abrirApp('relatorio.html', 'Relatório Fotográfico')" class="bg-white p-6 rounded-2xl shadow-md border-l-4 border-green-500 hover:shadow-xl hover:scale-[1.02] transition-all text-left group">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="bg-green-100 w-12 h-12 rounded-full flex items-center justify-center text-green-600 group-hover:bg-green-600 group-hover:text-white transition-colors">
+                            <i class="fas fa-camera text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-800 text-lg">Relatório Fotográfico</h3>
+                            <p class="text-gray-400 text-xs">Envio de fotos e checklist</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-300"></i>
+                </div>
+            </button>
+
+        </div>
+
+        <!-- Rodapé -->
+        <footer class="text-center text-gray-400 text-xs py-4">
+            <p>© Floorshare System</p>
+        </footer>
+    </div>
+
+    <!-- CONTAINER DO APLICATIVO (ESCONDIDO INICIALMENTE) -->
+    <div id="app-view" class="hidden h-screen bg-gray-100 flex flex-col">
+        <!-- Barra de Voltar -->
+        <div class="bg-gray-900 text-white p-3 flex items-center justify-between shadow-md h-[60px]">
+            <button onclick="voltarAoMenu()" class="flex items-center gap-2 px-3 py-1 rounded hover:bg-gray-700 transition">
+                <i class="fas fa-arrow-left"></i>
+                <span class="text-sm font-bold">Voltar ao Menu</span>
+            </button>
+            <span id="app-title" class="text-sm font-medium text-gray-300 mr-2">Aplicação</span>
+        </div>
+        
+        <!-- Onde o HTML escolhido será carregado -->
+        <iframe id="app-frame" src=""></iframe>
+    </div>
+
+    <script>
+        // Elementos
+        const menuContainer = document.getElementById('menu-container');
+        const appView = document.getElementById('app-view');
+        const appFrame = document.getElementById('app-frame');
+        const appTitle = document.getElementById('app-title');
+
+        function abrirApp(arquivo, titulo) {
+            // Verifica se está rodando localmente
+            // Se o arquivo não existir, o navegador mostrará erro 404 dentro do iframe
+            
+            // 1. Esconde o Menu
+            menuContainer.style.display = 'none';
+            
+            // 2. Mostra o Container do App
+            appView.classList.remove('hidden');
+            
+            // 3. Define o título
+            appTitle.innerText = titulo;
+
+            // 4. Carrega o arquivo no Iframe
+            appFrame.style.display = 'block';
+            appFrame.src = arquivo;
+        }
+
+        function voltarAoMenu() {
+            // 1. Limpa o iframe (para parar scripts ou sons se houver)
+            appFrame.src = '';
+            appFrame.style.display = 'none';
+
+            // 2. Esconde o Container do App
+            appView.classList.add('hidden');
+
+            // 3. Mostra o Menu novamente
+            menuContainer.style.display = 'flex';
+        }
+    </script>
+</body>
+</html>
+
+
