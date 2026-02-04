@@ -52,11 +52,11 @@
 </head>
 <body class="bg-gray-100 pb-32">
 
-    <header class="bg-red-600 text-white p-4 sticky top-0 z-50 shadow-md flex justify-between items-center">
+    <header class="bg-blue-700 text-white p-4 sticky top-0 z-50 shadow-md flex justify-between items-center">
         <div class="flex items-center gap-2">
             <h1 class="text-lg font-bold tracking-wide">Relatório de Campo</h1>
         </div>
-        <button id="reset-top" class="text-xs bg-red-700 hover:bg-red-800 px-3 py-1 rounded-full transition">
+        <button id="reset-top" class="text-xs bg-red-700 hover:bg-blue-800 px-3 py-1 rounded-full transition">
             <i class="fas fa-eraser mr-1"></i> Limpar
         </button>
     </header>
@@ -65,7 +65,7 @@
         
         <div class="bg-red-50 border-l-4 border-red-500 p-3 rounded-r mb-4 shadow-sm">
             <h2 class="text-gray-800 font-bold text-sm">Registro de Atividade</h2>
-            <p class="text-red-800 text-xs">Preencha os dados e anexe as 6 fotos obrigatórias.</p>
+            <p class="text-blue-800 text-xs">Preencha os dados e anexe as 6 fotos obrigatórias.</p>
         </div>
 
         <div class="space-y-4">
@@ -78,7 +78,7 @@
                 <div class="space-y-3">
                     <div>
                         <label class="text-xs text-gray-500 font-bold ml-1">Tipo: Exposição/Abordagem</label>
-                        <select id="tipo" class="w-full bg-gray-50 p-3 rounded-xl border border-gray-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 text-gray-700 text-sm transition appearance-none">
+                        <select id="tipo" class="w-full bg-gray-50 p-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-700 text-sm transition appearance-none">
                             <option value="">Selecione...</option>
                             <option value="Exposição">Exposição</option>
                             <option value="Abordagem">Abordagem</option>
@@ -191,7 +191,7 @@
     <!-- Botão Flutuante Principal -->
     <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-40">
         <div class="max-w-md mx-auto">
-            <button id="generate-report" class="w-full bg-red-600 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-red-700 active:scale-95 transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+            <button id="generate-report" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-blue-700 active:scale-95 transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
                 <i class="fas fa-check-circle mr-2"></i> Gerar Relatório
             </button>
         </div>
@@ -255,7 +255,7 @@
                     <div class="photo-content">
                         <img src="${e.target.result}" class="photo-preview rounded-lg">
                         <div class="absolute bottom-1 right-1 bg-white rounded-full p-1 shadow">
-                            <i class="fas fa-sync text-red-500 text-xs"></i>
+                            <i class="fas fa-sync text-blue-500 text-xs"></i>
                         </div>
                     </div>
                 `;
@@ -272,7 +272,7 @@
             if (count === 6) {
                 badge.className = "text-xs bg-green-100 text-green-700 px-2 py-1 rounded font-bold border border-green-200";
             } else {
-                badge.className = "text-xs bg-red-50 text-red-600 px-2 py-1 rounded font-bold border border-red-100";
+                badge.className = "text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded font-bold border border-blue-100";
             }
         }
 
