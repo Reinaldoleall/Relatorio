@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1e40af">
+    <title>Roteiro de Atendimento</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Intro.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/7.2.0/intro.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/7.2.0/introjs.min.css" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Roboto', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Autocomplete Styles */
+        .autocomplete-items {
+            position: absolute;
+            border: 1px solid #d4d4d4;
+            border-bottom: none;
+            border-top: none;
+            z-index: 99;
+            top: 100%;
+            left: 0;
+            right: 0;
+            border-radius: 0 0 0.75rem 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .autocomplete-items div {
+            padding: 12px;
+            cursor: pointer;
+            background-color: #fff;
+            border-bottom: 1px solid #d4d4d4;
+            font-size: 0.875rem;
+        }
+        .autocomplete-items div:hover {
+            background-color: #e9e9e9;
+        }
+        .autocomplete-active {
+            background-color: #1e40af !important;
+            color: #ffffff;
+        }
+
+        /* IntroJS Customization to match theme */
+        .introjs-tooltip {
+            border-radius: 1rem !important;
+            padding: 1rem !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+        }
+        .introjs-button {
+            background-color: #1e40af !important;
+            color: white !important;
+            text-shadow: none !important;
+            border-radius: 0.5rem !important;
+            font-size: 0.8rem !important;
+        }
+        .introjs-skipbutton {
+            color: #6b7280 !important;
+        }
+        .introjs-helperNumberLayer {
+            background: #1e40af !important;
+            border-color: #1e40af !important;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 pb-24">
+
+    <!-- Header -->
+    <header class="bg-blue-800 text-white p-4 sticky top-0 z-50 shadow-md flex justify-between items-center">
+        <div class="flex items-center gap-2">
+            <i class="fas fa-route"></i>
+            <h1 class="text-lg font-bold tracking-wide">Roteiro Leste/CEO</h1>
+        </div>
+        <div class="flex gap-2">
+            <button id="help-btn" class="text-xs bg-blue-700 hover:bg-blue-600 px-3 py-1 rounded-full transition border border-blue-500">
+                <i class="fas fa-question-circle"></i> Ajuda
+            </button>
+            <button id="reset-all" class="text-xs bg-red-600 hover:bg-red-700 px-3 py-1 rounded-full transition">
+                <i class="fas fa-trash-alt"></i> Limpar
+            </button>
+        </div>
+    </header>
+
+    <div class="container mx-auto p-4 max-w-lg space-y-4">
+        
+        <!-- Passo 1: Informações Básicas -->
+        <div id="step-basic-info" class="bg-white p-4 rounded-2xl shadow-sm">
+            <h3 class="text-blue-800 text-xs font-bold uppercase tracking-wider mb-3 flex items-center border-b pb-2">
+                <i class="fas fa-info-circle mr-2"></i> Dados do Roteiro
+            </h3>
+            
+            <div class="space-y-3">
+                <!-- Mês e Nome -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs text-gray-500 font-bold ml-1">Mês</label>
+                        <select id="month" class="w-full bg-gray-50 p-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm outline-none transition appearance-none">
+                            <option value="" disabled selected>Selecione</option>
+                            <option value="JANEIRO">JANEIRO</option>
+                            <option value="FEVEREIRO">FEVEREIRO</option>
+                            <option value="MARÇO">MARÇO</option>
+                            <option value="ABRIL">ABRIL</option>
+                            <option value="MAIO">MAIO</option>
+                            <option value="JUNHO">JUNHO</option>
+                            <option value="JULHO">JULHO</option>
+                            <option value="AGOSTO">AGOSTO</option>
+                            <option value="SETEMBRO">SETEMBRO</option>
+                            <option value="OUTUBRO">OUTUBRO</option>
+                            <option value="NOVEMBRO">NOVEMBRO</option>
+                            <option value="DEZEMBRO">DEZEMBRO</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 font-bold ml-1">Colaborador</label>
+                        <select id="employeeName" class="w-full bg-gray-50 p-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm outline-none transition appearance-none">
+                            <option value="" disabled selected>Selecione</option>
+                            <option value="Reinaldo">Reinaldo</option>
+                            <option value="Fabio">Fábio</option>
+                            <option value="Carla">Carla Vieira</option>
+                            <option value="Daniel">Daniel Gomes</option>
+                            <option value="Helen">Helen</option>
+                            <option value="Marjory">Márjory</option>
+                            <option value="Elane">Elane</option>
+                            <option value="Rosi">Rosi</option>
+                            <option value="Rosangela">Rosângela</option>
+                            <option value="Danielly">Danielly</option>
+                            <option value="Fernanda">Fernanda Santos</option>
+                            <option value="Monique">Monique</option>
+                            <option value="Patricia">Patrícia Santos</option>
+                            <option value="Renata">Renata Santos</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Datas Início/Fim -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs text-gray-500 font-bold ml-1">Início Freq.</label>
+                        <input type="date" id="startDate" class="w-full bg-gray-50 p-3 rounded-xl border border-gray-200 focus:border-blue-500 text-gray-700 text-sm outline-none">
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 font-bold ml-1">Fim Freq.</label>
+                        <input type="date" id="endDate" class="w-full bg-gray-50 p-3 rounded-xl border border-gray-200 focus:border-blue-500 text-gray-700 text-sm outline-none">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Passo 2: Montar Dia -->
+        <div id="step-build-day" class="bg-white p-4 rounded-2xl shadow-sm border-2 border-blue-50">
+            <h3 class="text-blue-800 text-xs font-bold uppercase tracking-wider mb-3 flex items-center border-b pb-2">
+                <i class="fas fa-calendar-plus mr-2"></i> Montar Dia de Visita
+            </h3>
+
+            <div class="mb-4">
+                <label class="text-xs text-gray-500 font-bold ml-1">Data da Visita</label>
+                <input type="date" id="dayDate" class="w-full bg-blue-50 p-3 rounded-xl border border-blue-200 text-gray-800 text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div id="temp-stores-list" class="space-y-2 mb-4">
+                <!-- Lojas adicionadas temporariamente aparecerão aqui -->
+            </div>
+
+            <!-- Adicionar Loja Form -->
+            <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 relative mb-3">
+                <p class="text-[10px] text-gray-400 font-bold uppercase mb-2">Adicionar Loja ao Dia</p>
+                
+                <div class="grid grid-cols-4 gap-2 mb-2">
+                    <div class="col-span-1 relative">
+                        <input type="text" id="new-store-id" placeholder="ID" class="w-full p-2 rounded-lg border text-sm" autocomplete="off">
+                    </div>
+                    <div class="col-span-3 relative">
+                        <input type="text" id="new-store-name" placeholder="Nome da Loja (Busca)" class="w-full p-2 rounded-lg border text-sm" autocomplete="off">
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="flex items-center bg-white border rounded-lg px-2">
+                        <span class="text-gray-400 text-xs mr-1">Ent:</span>
+                        <input type="time" id="new-store-start" class="w-full p-1 text-sm outline-none">
+                    </div>
+                    <div class="flex items-center bg-white border rounded-lg px-2">
+                        <span class="text-gray-400 text-xs mr-1">Sai:</span>
+                        <input type="time" id="new-store-end" class="w-full p-1 text-sm outline-none">
+                    </div>
+                </div>
+
+                <button id="add-store-btn" class="w-full mt-2 bg-gray-200 text-gray-600 hover:bg-gray-300 font-medium py-2 rounded-lg text-xs transition flex justify-center items-center gap-1">
+                    <i class="fas fa-plus"></i> Incluir Loja
+                </button>
+            </div>
+
+            <button id="save-day-btn" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl shadow-md hover:bg-green-700 transition flex items-center justify-center gap-2">
+                <i class="fas fa-check"></i> Confirmar Dia no Roteiro
+            </button>
+        </div>
+
+        <!-- Passo 3: Dias Agendados -->
+        <div id="scheduled-days-container" class="space-y-3">
+            <!-- Dias confirmados entram aqui -->
+            <div id="empty-state" class="text-center py-8 text-gray-400 bg-white rounded-2xl border border-dashed border-gray-300">
+                <i class="fas fa-clipboard-list text-4xl mb-2 opacity-30"></i>
+                <p class="text-sm">Nenhum dia adicionado ainda.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal de Resultado -->
+    <div id="result-modal" class="fixed inset-0 bg-black bg-opacity-60 z-[60] hidden flex items-end sm:items-center justify-center backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md sm:rounded-2xl rounded-t-2xl shadow-2xl transform transition-transform duration-300 max-h-[90vh] flex flex-col">
+            
+            <div class="p-4 border-b flex justify-between items-center bg-gray-50 rounded-t-2xl">
+                <h3 class="font-bold text-gray-800">Roteiro Gerado</h3>
+                <button id="close-modal" class="text-gray-500 hover:text-gray-700 bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="p-4 overflow-y-auto no-scrollbar">
+                <div id="output-text" class="whitespace-pre-wrap text-xs bg-gray-50 text-gray-900 p-4 rounded-xl border border-gray-200 font-mono select-all"></div>
+            </div>
+
+            <div class="p-4 border-t bg-white">
+                <button id="whatsapp-share" class="w-full bg-green-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg hover:bg-green-600 transition flex items-center justify-center gap-2">
+                    <i class="fab fa-whatsapp text-xl"></i> Compartilhar no WhatsApp
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botão Flutuante Inferior -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-40">
+        <div class="max-w-md mx-auto">
+            <button id="generate-report" class="w-full bg-blue-800 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-blue-900 active:scale-95 transition flex items-center justify-center gap-2">
+                <i class="fas fa-file-alt mr-2"></i> Gerar Roteiro
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- DADOS ---
+        const storeDatabase = [
+            // CARREFOUR
+            {id: "11902", name: "CARREFOUR- CAMPO GRANDE - RIO DE JANEIRO", type: "carrefour", defaultStart: "09:00", defaultEnd: "18:00"},
+            {id: "15707", name: "CARREFOUR - JARDIM SULACAP - RIO DE JANEIRO", type: "carrefour", defaultStart: "09:00", defaultEnd: "18:00"},
+            {id: "15913", name: "CARREFOUR - QUATORZE DE JULHO - DUQUE DE CAXIAS", type: "carrefour", defaultStart: "09:00", defaultEnd: "18:00"},
+            // FASTSHOP
+            {id: "91564", name: "FAST SHOP - PARKSHOPPING CAMPO GRANDE", type: "fastshop", defaultStart: "10:00", defaultEnd: "22:00"},
+            // LOJAS CEM
+            {id: "15356", name: "LOJAS CEM - CENTRO - NILÓPOLIS", type: "lojascem", defaultStart: "09:00", defaultEnd: "18:00"},
+            {id: "15357", name: "LOJAS CEM - CENTRO - NOVA IGUAÇU", type: "lojascem", defaultStart: "09:00", defaultEnd: "18:00"},
+            {id: "86460", name: "LOJAS CEM - JARIDM HIMALAIA - QUEIMADOS", type: "lojascem", defaultStart: "09:00", defaultEnd: "18:00"},
+            {id: "86461", name: "LOJAS CEM - VILA MARGARIDA - ITAGUAÍ", type: "lojascem", defaultStart: "09:00", defaultEnd: "18:00"},
+            {id: "86629", name: "LOJAS CEM - CENTRO - MESQUITA", type: "lojascem", defaultStart: "09:00", defaultEnd: "18:00"},
+            {id: "86631", name: "LOJAS CEM - CENTRO - SEROPÉDICA", type: "lojascem", defaultStart: "09:00", defaultEnd: "18:00"},
+            // MAGAZINE LUIZA
+            {id: "147877", name: "MAGAZINE LUIZA - BANGU - RIO DE JANEIRO", type: "magazineluiza", defaultStart: "10:00", defaultEnd: "19:00"},
+            {id: "148747", name: "MAGAZINE LUIZA - CAMPO GRANDE RIO DE JANEIRO", type: "magazineluiza", defaultStart: "10:00", defaultEnd: "19:00"},
+            {id: "148924", name: "MAGAZINE LUIZA - CENTRO - ITAGUAÍ", type: "magazineluiza", defaultStart: "10:00", defaultEnd: "19:00"},
+            {id: "148981", name: "MAGAZINE LUIZA - QUEIMADOS - QUEIMADOS", type: "magazineluiza", defaultStart: "10:00", defaultEnd: "19:00"},
+            {id: "154937", name: "MAGAZINE LUIZA - CENTRO - NILÓPOLIS", type: "magazineluiza", defaultStart: "10:00", defaultEnd: "19:00"},
+            {id: "155134", name: "MAGAZINE LUIZA - CENTRO - NOVA IGUAÇU", type: "magazineluiza", defaultStart: "10:00", defaultEnd: "19:00"}
+        ];
+
+        // --- ESTADO ---
+        let scheduleDays = JSON.parse(localStorage.getItem('scheduleDays')) || [];
+        let currentTempStores = []; // Lojas sendo adicionadas ao dia atual
+
+        // --- ELEMENTOS ---
+        const monthSelect = document.getElementById('month');
+        const startDateInput = document.getElementById('startDate');
+        const endDateInput = document.getElementById('endDate');
+        const employeeNameSelect = document.getElementById('employeeName');
+        const dayDateInput = document.getElementById('dayDate');
+        const scheduledDaysContainer = document.getElementById('scheduled-days-container');
+        const emptyState = document.getElementById('empty-state');
+        
+        // --- INICIALIZAÇÃO ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initDates();
+            loadFromStorage();
+            renderSchedule();
+            setupAutocomplete(document.getElementById('new-store-id'), 'id');
+            setupAutocomplete(document.getElementById('new-store-name'), 'name');
+            checkTutorial();
+        });
+
+        function initDates() {
+            const today = new Date();
+            // Início e Fim do mês atual
+            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+            const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+            
+            if(!startDateInput.value) startDateInput.value = formatDateISO(firstDay);
+            if(!endDateInput.value) endDateInput.value = formatDateISO(lastDay);
+            if(!monthSelect.value) monthSelect.selectedIndex = today.getMonth() + 1;
+            
+            // Sugerir dia de hoje para visita
+            dayDateInput.value = formatDateISO(today);
+        }
+
+        function loadFromStorage() {
+            // Recuperar valores dos inputs principais
+            if(localStorage.getItem('roteiro_basic_info')) {
+                const info = JSON.parse(localStorage.getItem('roteiro_basic_info'));
+                if(info.month) monthSelect.value = info.month;
+                if(info.employee) employeeNameSelect.value = info.employee;
+                if(info.start) startDateInput.value = info.start;
+                if(info.end) endDateInput.value = info.end;
+            }
+        }
+
+        function saveBasicInfo() {
+            const info = {
+                month: monthSelect.value,
+                employee: employeeNameSelect.value,
+                start: startDateInput.value,
+                end: endDateInput.value
+            };
+            localStorage.setItem('roteiro_basic_info', JSON.stringify(info));
+        }
+
+        // --- AUTOCOMPLETE ---
+        function setupAutocomplete(input, field) {
+            let currentFocus;
+            
+            input.addEventListener('input', function(e) {
+                const val = this.value;
+                closeAllLists();
+                if(!val) return false;
+                currentFocus = -1;
+                
+                const listDiv = document.createElement("div");
+                listDiv.setAttribute("id", this.id + "autocomplete-list");
+                listDiv.setAttribute("class", "autocomplete-items");
+                this.parentNode.appendChild(listDiv);
+
+                const matches = storeDatabase.filter(store => 
+                    store[field].toLowerCase().includes(val.toLowerCase())
+                ).slice(0, 5);
+
+                for (let i = 0; i < matches.length; i++) {
+                    const store = matches[i];
+                    const itemDiv = document.createElement("div");
+                    
+                    // Highlight match
+                    const matchText = store[field];
+                    const regex = new RegExp(`(${val})`, "gi");
+                    const textWithBold = matchText.replace(regex, "<strong>$1</strong>");
+
+                    itemDiv.innerHTML = `<span class="font-medium text-blue-700">${textWithBold}</span>`;
+                    if(field === 'id') itemDiv.innerHTML += `<br><span class="text-xs text-gray-500">${store.name}</span>`;
+                    else itemDiv.innerHTML += `<br><span class="text-xs text-gray-500">ID: ${store.id}</span>`;
+                    
+                    itemDiv.innerHTML += `<input type='hidden' value='${JSON.stringify(store)}'>`;
+                    
+                    itemDiv.addEventListener("click", function(e) {
+                        const selectedStore = JSON.parse(this.getElementsByTagName("input")[0].value);
+                        fillStoreInputs(selectedStore);
+                        closeAllLists();
+                    });
+                    listDiv.appendChild(itemDiv);
+                }
+            });
+
+            function closeAllLists(elmnt) {
+                var x = document.getElementsByClassName("autocomplete-items");
+                for (var i = 0; i < x.length; i++) {
+                    if (elmnt != x[i] && elmnt != input) {
+                        x[i].parentNode.removeChild(x[i]);
+                    }
+                }
+            }
+            document.addEventListener("click", function (e) {
+                closeAllLists(e.target);
+            });
+        }
+
+        function fillStoreInputs(store) {
+            document.getElementById('new-store-id').value = store.id;
+            document.getElementById('new-store-name').value = store.name;
+            document.getElementById('new-store-start').value = store.defaultStart;
+            document.getElementById('new-store-end').value = store.defaultEnd;
+        }
+
+        // --- LÓGICA DE LOJAS (TEMPORÁRIA) ---
+        document.getElementById('add-store-btn').addEventListener('click', () => {
+            const id = document.getElementById('new-store-id').value;
+            const name = document.getElementById('new-store-name').value;
+            const start = document.getElementById('new-store-start').value;
+            const end = document.getElementById('new-store-end').value;
+
+            if(!id || !name || !start || !end) {
+                alert("Preencha todos os dados da loja.");
+                return;
+            }
+
+            currentTempStores.push({ id, name, start, end });
+            renderTempStores();
+            
+            // Limpar inputs de loja
+            document.getElementById('new-store-id').value = '';
+            document.getElementById('new-store-name').value = '';
+            document.getElementById('new-store-start').value = '';
+            document.getElementById('new-store-end').value = '';
+        });
+
+        function renderTempStores() {
+            const container = document.getElementById('temp-stores-list');
+            container.innerHTML = '';
+            
+            currentTempStores.forEach((store, index) => {
+                const div = document.createElement('div');
+                div.className = 'flex justify-between items-center bg-blue-50 p-2 rounded-lg border border-blue-100 text-sm';
+                div.innerHTML = `
+                    <div class="flex-1 truncate pr-2">
+                        <span class="font-bold text-blue-800">${store.id}</span> 
+                        <span class="text-gray-600 truncate block text-xs">${store.name}</span>
+                        <span class="text-xs text-gray-500">${store.start} às ${store.end}</span>
+                    </div>
+                    <button onclick="removeTempStore(${index})" class="text-red-500 hover:text-red-700 p-1">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        window.removeTempStore = (index) => {
+            currentTempStores.splice(index, 1);
+            renderTempStores();
+        };
+
+        // --- SALVAR DIA ---
+        document.getElementById('save-day-btn').addEventListener('click', () => {
+            const date = dayDateInput.value;
+            
+            if(!date) { alert("Selecione uma data."); return; }
+            if(currentTempStores.length === 0) { alert("Adicione pelo menos uma loja ao dia."); return; }
+
+            // Verificar se o dia já existe
+            const dateFormatted = formatDateDisplay(date);
+            const existingIndex = scheduleDays.findIndex(d => d.date === dateFormatted);
+
+            if(existingIndex >= 0) {
+                scheduleDays[existingIndex].stores.push(...currentTempStores);
+            } else {
+                scheduleDays.push({
+                    date: dateFormatted,
+                    rawDate: date,
+                    stores: [...currentTempStores]
+                });
+            }
+
+            // Ordenar dias
+            scheduleDays.sort((a, b) => new Date(a.rawDate) - new Date(b.rawDate));
+
+            // Salvar e Limpar
+            localStorage.setItem('scheduleDays', JSON.stringify(scheduleDays));
+            saveBasicInfo();
+            
+            currentTempStores = [];
+            renderTempStores();
+            renderSchedule();
+            
+            // Sugerir próximo dia útil
+            suggestNextDay(date);
+        });
+
+        function suggestNextDay(currentDateStr) {
+            const d = new Date(currentDateStr);
+            d.setDate(d.getDate() + 1); // +1 dia
+            // Se for Sábado (6) -> +2 dias (Segunda)
+            if(d.getDay() === 6) d.setDate(d.getDate() + 2);
+            // Se for Domingo (0) -> +1 dia (Segunda)
+            if(d.getDay() === 0) d.setDate(d.getDate() + 1);
+            
+            dayDateInput.value = formatDateISO(d);
+        }
+
+        // --- RENDERIZAR AGENDA ---
+        function renderSchedule() {
+            scheduledDaysContainer.innerHTML = '';
+            
+            if(scheduleDays.length === 0) {
+                scheduledDaysContainer.appendChild(emptyState);
+                return;
+            }
+
+            scheduleDays.forEach((day, dayIndex) => {
+                const dayCard = document.createElement('div');
+                dayCard.className = 'bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100';
+                
+                let storesHtml = '';
+                day.stores.forEach((store, storeIndex) => {
+                    storesHtml += `
+                        <div class="flex justify-between items-center p-3 border-b last:border-0 border-gray-50 hover:bg-gray-50 transition">
+                            <div>
+                                <div class="text-xs font-bold text-gray-700">${store.id} - ${store.name}</div>
+                                <div class="text-xs text-gray-400"><i class="far fa-clock mr-1"></i>${store.start} às ${store.end}</div>
+                            </div>
+                            <button onclick="removeStoreFromDay(${dayIndex}, ${storeIndex})" class="text-gray-300 hover:text-red-500 p-2 transition">
+                                <i class="fas fa-trash-alt text-xs"></i>
+                            </button>
+                        </div>
+                    `;
+                });
+
+                const dayOfWeek = getDayName(day.rawDate);
+                
+                dayCard.innerHTML = `
+                    <div class="bg-blue-800 text-white p-3 flex justify-between items-center">
+                        <div class="font-bold text-sm">
+                            <i class="fas fa-calendar-day mr-2 opacity-70"></i>${day.date} <span class="font-normal opacity-80 text-xs">(${dayOfWeek})</span>
+                        </div>
+                        <button onclick="removeDay(${dayIndex})" class="text-blue-200 hover:text-white transition">
+                            <i class="fas fa-times-circle"></i>
+                        </button>
+                    </div>
+                    <div class="divide-y divide-gray-100">
+                        ${storesHtml}
+                    </div>
+                `;
+                scheduledDaysContainer.appendChild(dayCard);
+            });
+        }
+
+        window.removeStoreFromDay = (dayIndex, storeIndex) => {
+            scheduleDays[dayIndex].stores.splice(storeIndex, 1);
+            if(scheduleDays[dayIndex].stores.length === 0) {
+                scheduleDays.splice(dayIndex, 1);
+            }
+            localStorage.setItem('scheduleDays', JSON.stringify(scheduleDays));
+            renderSchedule();
+        };
+
+        window.removeDay = (dayIndex) => {
+            if(confirm("Remover este dia inteiro do roteiro?")) {
+                scheduleDays.splice(dayIndex, 1);
+                localStorage.setItem('scheduleDays', JSON.stringify(scheduleDays));
+                renderSchedule();
+            }
+        };
+
+        // --- GERAR RELATÓRIO ---
+        document.getElementById('generate-report').addEventListener('click', () => {
+            saveBasicInfo(); // Garantir que inputs estão salvos
+            
+            const month = monthSelect.value;
+            const start = startDateInput.value ? formatDateDisplay(startDateInput.value) : '';
+            const end = endDateInput.value ? formatDateDisplay(endDateInput.value) : '';
+            const employee = employeeNameSelect.value;
+
+            if(!month || !start || !end || !employee || scheduleDays.length === 0) {
+                alert("Preencha as informações básicas e adicione dias ao roteiro.");
+                return;
+            }
+
+            let text = `*SUGESTÃO ROTEIRO - LESTE E CEO*\n`;
+            text += `*MÊS:* ${month}\n\n`;
+            text += `*INÍCIO DA FREQUÊNCIA:* ${start}\n`;
+            text += `*FINAL DA FREQUÊNCIA:* ${end}\n\n`;
+            text += `*NOME:* ${employee}\n\n`;
+
+            scheduleDays.forEach((day, index) => {
+                const dayName = getDayName(day.rawDate);
+                text += `*${day.date} (${dayName})*\n`;
+                day.stores.forEach(store => {
+                    text += `ID: ${store.id} - ${store.name} - ${store.start} às ${store.end}\n`;
+                });
+                
+                if(index < scheduleDays.length - 1) text += `_____________\n\n`;
+            });
+
+            text += `\n*Total de dias:* ${scheduleDays.length}\n`;
+            const totalStores = scheduleDays.reduce((acc, d) => acc + d.stores.length, 0);
+            text += `*Total de lojas:* ${totalStores}`;
+
+            // Exibir Modal
+            document.getElementById('output-text').textContent = text;
+            document.getElementById('result-modal').classList.remove('hidden');
+
+            // Configurar Botão Whatsapp
+            document.getElementById('whatsapp-share').onclick = () => {
+                const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+                window.open(url, '_blank');
+            };
+        });
+
+        // --- UTILITÁRIOS ---
+        document.getElementById('reset-all').addEventListener('click', () => {
+            if(confirm("Limpar todo o roteiro?")) {
+                scheduleDays = [];
+                localStorage.removeItem('scheduleDays');
+                renderSchedule();
+            }
+        });
+
+        document.getElementById('close-modal').addEventListener('click', () => {
+            document.getElementById('result-modal').classList.add('hidden');
+        });
+
+        function formatDateISO(dateObj) {
+            let month = '' + (dateObj.getMonth() + 1);
+            let day = '' + dateObj.getDate();
+            const year = dateObj.getFullYear();
+            if (month.length < 2) month = '0' + month;
+            if (day.length < 2) day = '0' + day;
+            return [year, month, day].join('-');
+        }
+
+        function formatDateDisplay(isoDate) {
+            if(!isoDate) return "";
+            const [y, m, d] = isoDate.split('-');
+            return `${d}/${m}/${y}`;
+        }
+
+        function getDayName(dateStr) {
+            // dateStr deve ser YYYY-MM-DD
+            const [year, month, day] = dateStr.split('-');
+            const date = new Date(year, month - 1, day);
+            const days = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+            return days[date.getDay()];
+        }
+
+        // --- TUTORIAL (INTRO.JS) ---
+        const tutorialSteps = [
+            {
+                element: document.querySelector('header'),
+                intro: 'Bem-vindo ao Gerador de Roteiros. Aqui você organiza suas visitas.',
+                position: 'bottom'
+            },
+            {
+                element: document.getElementById('step-basic-info'),
+                intro: 'Primeiro, preencha o Mês, seu Nome e o período da frequência.',
+                position: 'bottom'
+            },
+            {
+                element: document.getElementById('step-build-day'),
+                intro: 'Aqui você monta o dia. 1. Escolha a data. 2. Busque a loja (digite o nome ou ID). 3. Inclua a loja.',
+                position: 'top'
+            },
+            {
+                element: document.getElementById('save-day-btn'),
+                intro: 'Depois de adicionar todas as lojas do dia, clique aqui para confirmar.',
+                position: 'top'
+            },
+            {
+                element: document.getElementById('generate-report'),
+                intro: 'Ao finalizar o mês, clique aqui para gerar o texto e enviar no WhatsApp.',
+                position: 'top'
+            }
+        ];
+
+        function startTutorial() {
+            introJs().setOptions({
+                steps: tutorialSteps,
+                nextLabel: 'Próximo',
+                prevLabel: 'Anterior',
+                doneLabel: 'Entendi',
+                showProgress: true,
+                showBullets: false
+            }).start();
+        }
+
+        document.getElementById('help-btn').addEventListener('click', startTutorial);
+
+        function checkTutorial() {
+            if(!localStorage.getItem('tutorial_roteiro_visto')) {
+                setTimeout(() => {
+                    startTutorial();
+                    localStorage.setItem('tutorial_roteiro_visto', 'true');
+                }, 1000);
+            }
+        }
+
+    </script>
+</body>
+</html>
+
