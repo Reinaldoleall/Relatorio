@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0041C0"> 
+    <title>Checklist Mix Panasonic</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Biblioteca para gerar PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <style>
+        body { font-family: 'Roboto', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Estilo dos itens selecionáveis */
+        .product-item {
+            transition: all 0.2s ease;
+        }
+        .product-item.selected {
+            background-color: #2563eb; /* Blue-600 */
+            color: white;
+            border-color: #2563eb;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+        }
+        .product-item.selected i {
+            color: white;
+        }
+        
+        /* Animação suave */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 pb-24">
+
+    <!-- Header Panasonic -->
+    <header class="bg-[#0041C0] text-white p-4 sticky top-0 z-50 shadow-md flex justify-between items-center">
+        <div class="flex items-center gap-2">
+            <i class="fas fa-clipboard-check"></i>
+            <h1 class="text-lg font-bold tracking-wide">Mix Panasonic</h1>
+        </div>
+        <button id="reset-all" class="text-xs bg-blue-800 hover:bg-blue-900 border border-blue-600 px-3 py-1 rounded-full transition">
+            <i class="fas fa-eraser mr-1"></i> Limpar
+        </button>
+    </header>
+
+    <div class="container mx-auto p-4 max-w-md">
+        
+        <!-- Info da Loja -->
+        <div class="bg-white p-4 rounded-2xl shadow-sm mb-4">
+            <h3 class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-3 flex items-center">
+                <i class="fas fa-store mr-2"></i> Dados da Visita
+            </h3>
+            <div class="space-y-3">
+                <input type="text" id="rede" placeholder="Rede" class="w-full bg-gray-50 p-3 rounded-xl border-none focus:ring-2 focus:ring-blue-500 text-gray-700 text-sm transition">
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="text" id="id-rede" placeholder="ID Loja" class="w-full bg-gray-50 p-3 rounded-xl border-none focus:ring-2 focus:ring-blue-500 text-gray-700 text-sm transition">
+                    <input type="text" id="filial" placeholder="Filial" class="w-full bg-gray-50 p-3 rounded-xl border-none focus:ring-2 focus:ring-blue-500 text-gray-700 text-sm transition">
+                </div>
+                <div class="relative">
+                    <span class="absolute left-3 top-3 text-gray-400 text-xs">Data</span>
+                    <input type="date" id="data" class="w-full bg-gray-50 pt-6 pb-2 px-3 rounded-xl border-none focus:ring-2 focus:ring-blue-500 text-gray-700 text-sm transition">
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-3 rounded-r mb-4 shadow-sm">
+            <p class="text-blue-800 text-xs font-bold uppercase tracking-wider mb-1">Instruções</p>
+            <h2 class="text-gray-800 text-sm">Toque nos produtos disponíveis na loja para adicioná-los ao relatório.</h2>
+        </div>
+
+        <!-- Container de Produtos (Gerado via JS) -->
+        <div id="products-container" class="space-y-4">
+            <!-- As categorias serão injetadas aqui -->
+        </div>
+        
+        <div class="h-8"></div>
+    </div>
+
+    <!-- Modal de Resultado -->
+    <div id="result-modal" class="fixed inset-0 bg-black bg-opacity-60 z-[60] hidden flex items-end sm:items-center justify-center backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md sm:rounded-2xl rounded-t-2xl shadow-2xl transform transition-transform duration-300 max-h-[90vh] flex flex-col">
+            
+            <div class="p-4 border-b flex justify-between items-center bg-gray-50 rounded-t-2xl">
+                <h3 class="font-bold text-gray-800">Mix Gerado</h3>
+                <button id="close-modal" class="text-gray-500 hover:text-gray-700 bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="p-4 overflow-y-auto no-scrollbar">
+                <h4 class="text-xs font-bold text-gray-400 uppercase mb-2">Prévia do Texto</h4>
+                <div id="text-preview" class="whitespace-pre-wrap text-xs bg-gray-50 text-gray-900 p-4 rounded-xl border border-gray-200 font-mono max-h-80 overflow-y-auto select-all"></div>
+            </div>
+
+            <div class="p-4 border-t bg-white flex gap-3">
+                <button id="generate-pdf" class="flex-1 bg-red-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg hover:bg-red-700 transition flex items-center justify-center gap-2">
+                    <i class="fas fa-file-pdf"></i> PDF
+                </button>
+                <a id="whatsapp-link" href="#" target="_blank" class="flex-1 bg-green-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg hover:bg-green-700 transition flex items-center justify-center gap-2">
+                    <i class="fab fa-whatsapp text-xl"></i> Enviar
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botão Flutuante Inferior -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-40">
+        <div class="max-w-md mx-auto">
+            <button id="generate-report" class="w-full bg-[#0041C0] text-white font-bold py-3 rounded-xl shadow-lg hover:bg-blue-800 active:scale-95 transition flex items-center justify-center gap-2">
+                <i class="fas fa-check-circle mr-2"></i> Gerar Relatório
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const { jsPDF } = window.jspdf;
+        
+        // Data atual automática
+        const today = new Date();
+        document.getElementById('data').valueAsDate = today;
+
+        // Lista de Produtos conforme solicitado
+        const catalog = {
+            "Geladeiras": [
+                "NR-BT41W", "NR-BT41X", "NR-BT43PV", "NR-BT56W", "NR-BT56X", 
+                "NR-BT71W", "NR-BT71X", "NR-BB41T", "NR-BB41G", "NR-BB64P", 
+                "NR-BB64X", "NR-BB65G", "NR-BB65M", "NR-BB71X", "NR-BB71G", 
+                "DB69 - UNIQ", "DB99 - DARK"
+            ],
+            "MWO": [
+                "NN-ST25", "NN-ST27L", "NN-ST55L", "NN-ST65L", 
+                "NN-ST66N", "NN-ST67L", "NN-GT68L", "NN-CD89N"
+            ],
+            "Lavadora": [
+                "F120B1", "F120B1T", "F130B1W", "F140B1W", "F150W", 
+                "F150T", "F160B6W", "F170B7W", "F180P7T"
+            ],
+            "Built-in": [
+                "NP-6M1MBK", "NP-6M2FTK", "KY-W648CLR", "KY-T937XL", 
+                "NN-GB68QSRUK", "NN-GB68QBRUK", "HL-CX668SR", "HL-CX672BRK", "FV-9HSDB2"
+            ],
+            "Cuidados pessoais": [
+                "EH-NA6A", "ER-389X", "ES-WF61", "ER-GN25", 
+                "ER-GN30", "ER-GB80", "ER-GK80"
+            ]
+        };
+
+        // Ícones por categoria
+        const icons = {
+            "Geladeiras": "fa-snowflake",
+            "MWO": "fa-box-open", // Microondas
+            "Lavadora": "fa-tshirt",
+            "Built-in": "fa-layer-group",
+            "Cuidados pessoais": "fa-magic"
+        };
+
+        // Função para renderizar o catálogo
+        function renderCatalog() {
+            const container = document.getElementById('products-container');
+            container.innerHTML = '';
+
+            for (const [category, products] of Object.entries(catalog)) {
+                // Criação do card da categoria
+                const section = document.createElement('div');
+                section.className = "bg-white p-4 rounded-2xl shadow-sm animate-fade-in";
+                
+                const header = document.createElement('h3');
+                header.className = "text-[#0041C0] font-bold text-lg mb-3 flex items-center border-b pb-2";
+                header.innerHTML = `<i class="fas ${icons[category] || 'fa-tag'} mr-2 text-sm opacity-70"></i> ${category}`;
+                section.appendChild(header);
+
+                // Grid de produtos
+                const grid = document.createElement('div');
+                grid.className = "grid grid-cols-2 sm:grid-cols-3 gap-2";
+
+                products.forEach(prod => {
+                    const btn = document.createElement('button');
+                    // Estilo base
+                    btn.className = "product-item text-left p-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-600 text-xs sm:text-sm font-medium flex items-center justify-between group";
+                    btn.dataset.product = prod;
+                    btn.dataset.category = category;
+                    btn.innerHTML = `
+                        <span class="truncate pr-2">${prod}</span>
+                        <i class="fas fa-check-circle text-gray-300 transition-colors group-hover:text-blue-300"></i>
+                    `;
+                    
+                    // Evento de Click
+                    btn.onclick = () => toggleSelection(btn);
+
+                    grid.appendChild(btn);
+                });
+
+                section.appendChild(grid);
+                container.appendChild(section);
+            }
+        }
+
+        // Função de Seleção (Toggle)
+        function toggleSelection(btn) {
+            btn.classList.toggle('selected');
+            // Atualiza o ícone visualmente
+            const icon = btn.querySelector('i');
+            if (btn.classList.contains('selected')) {
+                icon.className = "fas fa-check-circle text-white";
+            } else {
+                icon.className = "fas fa-check-circle text-gray-300 transition-colors group-hover:text-blue-300";
+            }
+        }
+
+        // Formatar Data para exibição
+        function formatDate(dateStr) {
+            if (!dateStr) return "";
+            const [year, month, day] = dateStr.split('-');
+            return `${day}/${month}/${year}`;
+        }
+
+        // Obter dados selecionados
+        function getSelectedData() {
+            const selected = {};
+            const allBtns = document.querySelectorAll('.product-item.selected');
+            
+            allBtns.forEach(btn => {
+                const cat = btn.dataset.category;
+                const prod = btn.dataset.product;
+                
+                if (!selected[cat]) selected[cat] = [];
+                selected[cat].push(prod);
+            });
+            return selected;
+        }
+
+        // Gerar Texto do Relatório
+        function generateTextReport(inputs, selectedData) {
+            let text = `*Mix Panasonic Na Rede:*\n\n`;
+            text += `*Rede:* ${inputs.rede}\n`;
+            text += `*ID:* ${inputs.id}\n`;
+            text += `*Filial:* ${inputs.filial}\n`;
+            text += `*Data:* ${inputs.data}\n\n`;
+
+            // Ordem específica das categorias conforme pedido
+            const order = ["Geladeiras", "MWO", "Lavadora", "Built-in", "Cuidados pessoais"];
+
+            let hasItems = false;
+
+            order.forEach(cat => {
+                if (selectedData[cat] && selectedData[cat].length > 0) {
+                    hasItems = true;
+                    text += `*${cat}:*\n\n`;
+                    selectedData[cat].forEach(prod => {
+                        text += `${prod}\n`;
+                    });
+                    text += `\n`;
+                }
+            });
+
+            if (!hasItems) {
+                text += "_Nenhum produto selecionado._";
+            }
+
+            return text;
+        }
+
+        // Gerar PDF
+        function generatePDF(inputs, selectedData) {
+            const doc = new jsPDF();
+            const pageWidth = doc.internal.pageSize.width;
+            
+            // Header Azul
+            doc.setFillColor(0, 65, 192); // Azul Panasonic
+            doc.rect(0, 0, pageWidth, 25, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(16);
+            doc.setFont("helvetica", "bold");
+            doc.text("Checklist Mix Panasonic", 15, 16);
+
+            // Informações da Loja
+            let y = 35;
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "bold");
+            doc.text("DADOS DA VISITA", 15, y);
+            doc.setDrawColor(200);
+            doc.line(15, y+2, pageWidth-15, y+2);
+            
+            y += 8;
+            doc.setFont("helvetica", "normal");
+            doc.text(`Rede: ${inputs.rede}`, 15, y);
+            doc.text(`Filial: ${inputs.filial}`, 15, y+5);
+            
+            doc.text(`ID: ${inputs.id}`, 110, y);
+            doc.text(`Data: ${inputs.data}`, 110, y+5);
+
+            y += 15;
+
+            // Lista de Produtos
+            doc.setFont("helvetica", "bold");
+            doc.text("PRODUTOS ENCONTRADOS NO POS", 15, y);
+            doc.line(15, y+2, pageWidth-15, y+2);
+            y += 10;
+
+            const order = ["Geladeiras", "MWO", "Lavadora", "Built-in", "Cuidados pessoais"];
+            let hasItems = false;
+
+            order.forEach(cat => {
+                if (selectedData[cat] && selectedData[cat].length > 0) {
+                    hasItems = true;
+                    
+                    // Verifica quebra de página
+                    if (y > 270) {
+                        doc.addPage();
+                        y = 20;
+                    }
+
+                    // Título Categoria
+                    doc.setFont("helvetica", "bold");
+                    doc.setFillColor(240, 240, 240);
+                    doc.rect(15, y-4, pageWidth-30, 6, 'F');
+                    doc.setTextColor(0, 65, 192);
+                    doc.text(cat.toUpperCase(), 18, y);
+                    
+                    y += 6;
+                    doc.setTextColor(0, 0, 0);
+                    doc.setFont("helvetica", "normal");
+                    
+                    // Itens (2 colunas para economizar espaço no PDF)
+                    selectedData[cat].forEach((prod, index) => {
+                         // Verifica quebra de página interna
+                        if (y > 280) {
+                            doc.addPage();
+                            y = 20;
+                        }
+
+                        // Ícone bullet simples
+                        doc.text(`• ${prod}`, 20, y);
+                        y += 5;
+                    });
+                    y += 4; // Espaço entre categorias
+                }
+            });
+
+            if (!hasItems) {
+                doc.setFont("helvetica", "italic");
+                doc.text("Nenhum produto foi selecionado nesta visita.", 15, y);
+            }
+
+            // Rodapé
+            doc.setFontSize(8);
+            doc.setTextColor(150);
+            doc.text(`Gerado em ${new Date().toLocaleString('pt-BR')}`, pageWidth/2, 290, { align: 'center' });
+
+            doc.save(`Mix_Panasonic_${inputs.rede || 'Loja'}.pdf`);
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', renderCatalog);
+
+        document.getElementById('reset-all').addEventListener('click', () => {
+            if(confirm('Limpar todas as seleções?')) {
+                document.querySelectorAll('.product-item.selected').forEach(btn => toggleSelection(btn));
+                document.getElementById('rede').value = '';
+                document.getElementById('id-rede').value = '';
+                document.getElementById('filial').value = '';
+                window.scrollTo(0,0);
+            }
+        });
+
+        document.getElementById('generate-report').addEventListener('click', () => {
+            const inputs = {
+                rede: document.getElementById('rede').value || "-",
+                id: document.getElementById('id-rede').value || "-",
+                filial: document.getElementById('filial').value || "-",
+                data: formatDate(document.getElementById('data').value)
+            };
+
+            const selectedData = getSelectedData();
+            
+            // Verificar se tem algo selecionado (opcional, mas bom UX)
+            // if (Object.keys(selectedData).length === 0) { alert('Selecione pelo menos um produto.'); return; }
+
+            const textReport = generateTextReport(inputs, selectedData);
+            
+            // Preencher Modal
+            document.getElementById('text-preview').textContent = textReport;
+            
+            // Configurar WhatsApp
+            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(textReport)}`;
+            document.getElementById('whatsapp-link').href = whatsappUrl;
+
+            // Configurar PDF
+            document.getElementById('generate-pdf').onclick = () => generatePDF(inputs, selectedData);
+
+            // Abrir Modal
+            document.getElementById('result-modal').classList.remove('hidden');
+        });
+
+        document.getElementById('close-modal').addEventListener('click', () => {
+            document.getElementById('result-modal').classList.add('hidden');
+        });
+    </script>
+</body>
+</html>
+
