@@ -252,28 +252,37 @@
 
     <script>
         // --- DADOS ---
-        const storeDatabase = [
-            // CARREFOUR
-            {id: "11902", name: "CARREFOUR- CAMPO GRANDE - RIO DE JANEIRO", type: "carrefour", defaultStart: "09:00", defaultEnd: "18:00"},
-            {id: "15707", name: "CARREFOUR - JARDIM SULACAP - RIO DE JANEIRO", type: "carrefour", defaultStart: "09:00", defaultEnd: "18:00"},
-            {id: "15913", name: "CARREFOUR - QUATORZE DE JULHO - DUQUE DE CAXIAS", type: "carrefour", defaultStart: "09:00", defaultEnd: "18:00"},
-            // FASTSHOP
-            {id: "91564", name: "FAST SHOP - PARKSHOPPING CAMPO GRANDE", type: "fastshop", defaultStart: "10:00", defaultEnd: "22:00"},
-            // LOJAS CEM
-            {id: "15356", name: "LOJAS CEM - CENTRO - NILÓPOLIS", type: "lojascem", defaultStart: "09:00", defaultEnd: "18:00"},
-            {id: "15357", name: "LOJAS CEM - CENTRO - NOVA IGUAÇU", type: "lojascem", defaultStart: "09:00", defaultEnd: "18:00"},
-            {id: "86460", name: "LOJAS CEM - JARIDM HIMALAIA - QUEIMADOS", type: "lojascem", defaultStart: "09:00", defaultEnd: "18:00"},
-            {id: "86461", name: "LOJAS CEM - VILA MARGARIDA - ITAGUAÍ", type: "lojascem", defaultStart: "09:00", defaultEnd: "18:00"},
-            {id: "86629", name: "LOJAS CEM - CENTRO - MESQUITA", type: "lojascem", defaultStart: "09:00", defaultEnd: "18:00"},
-            {id: "86631", name: "LOJAS CEM - CENTRO - SEROPÉDICA", type: "lojascem", defaultStart: "09:00", defaultEnd: "18:00"},
-            // MAGAZINE LUIZA
-            {id: "147877", name: "MAGAZINE LUIZA - BANGU - RIO DE JANEIRO", type: "magazineluiza", defaultStart: "10:00", defaultEnd: "19:00"},
-            {id: "148747", name: "MAGAZINE LUIZA - CAMPO GRANDE RIO DE JANEIRO", type: "magazineluiza", defaultStart: "10:00", defaultEnd: "19:00"},
-            {id: "148924", name: "MAGAZINE LUIZA - CENTRO - ITAGUAÍ", type: "magazineluiza", defaultStart: "10:00", defaultEnd: "19:00"},
-            {id: "148981", name: "MAGAZINE LUIZA - QUEIMADOS - QUEIMADOS", type: "magazineluiza", defaultStart: "10:00", defaultEnd: "19:00"},
-            {id: "154937", name: "MAGAZINE LUIZA - CENTRO - NILÓPOLIS", type: "magazineluiza", defaultStart: "10:00", defaultEnd: "19:00"},
-            {id: "155134", name: "MAGAZINE LUIZA - CENTRO - NOVA IGUAÇU", type: "magazineluiza", defaultStart: "10:00", defaultEnd: "19:00"}
-        ];
+const storeDatabase = [
+    // CARREFOUR
+    {id: "11902", name: "CARREFOUR- CAMPO GRANDE - RIO DE JANEIRO", type: "carrefour", defaultStart: "09:00", defaultEnd: "18:00"},
+    {id: "15707", name: "CARREFOUR - JARDIM SULACAP - RIO DE JANEIRO", type: "carrefour", defaultStart: "09:00", defaultEnd: "18:00"},
+    {id: "15913", name: "CARREFOUR - QUATORZE DE JULHO - DUQUE DE CAXIAS", type: "carrefour", defaultStart: "09:00", defaultEnd: "18:00"},
+    // FASTSHOP
+    {id: "91564", name: "FAST SHOP - PARKSHOPPING CAMPO GRANDE", type: "fastshop", defaultStart: "10:00", defaultEnd: "22:00"},
+    // LOJAS CEM
+    {id: "15356", name: "LOJAS CEM - CENTRO - NILÓPOLIS", type: "lojascem", defaultStart: "09:00", defaultEnd: "18:00"},
+    {id: "15357", name: "LOJAS CEM - CENTRO - NOVA IGUAÇU", type: "lojascem", defaultStart: "09:00", defaultEnd: "18:00"},
+    {id: "86460", name: "LOJAS CEM - JARIDM HIMALAIA - QUEIMADOS", type: "lojascem", defaultStart: "09:00", defaultEnd: "18:00"},
+    {id: "86461", name: "LOJAS CEM - VILA MARGARIDA - ITAGUAÍ", type: "lojascem", defaultStart: "09:00", defaultEnd: "18:00"},
+    {id: "86629", name: "LOJAS CEM - CENTRO - MESQUITA", type: "lojascem", defaultStart: "09:00", defaultEnd: "18:00"},
+    {id: "86631", name: "LOJAS CEM - CENTRO - SEROPÉDICA", type: "lojascem", defaultStart: "09:00", defaultEnd: "18:00"},
+    // MAGAZINE LUIZA
+    {id: "147877", name: "MAGAZINE LUIZA - BANGU - RIO DE JANEIRO", type: "magazineluiza", defaultStart: "10:00", defaultEnd: "19:00"},
+    {id: "148747", name: "MAGAZINE LUIZA - CAMPO GRANDE RIO DE JANEIRO", type: "magazineluiza", defaultStart: "10:00", defaultEnd: "19:00"},
+    {id: "148924", name: "MAGAZINE LUIZA - CENTRO - ITAGUAÍ", type: "magazineluiza", defaultStart: "10:00", defaultEnd: "19:00"},
+    {id: "148981", name: "MAGAZINE LUIZA - QUEIMADOS - QUEIMADOS", type: "magazineluiza", defaultStart: "10:00", defaultEnd: "19:00"},
+    {id: "154937", name: "MAGAZINE LUIZA - CENTRO - NILÓPOLIS", type: "magazineluiza", defaultStart: "10:00", defaultEnd: "19:00"},
+    {id: "155134", name: "MAGAZINE LUIZA - CENTRO - NOVA IGUAÇU", type: "magazineluiza", defaultStart: "10:00", defaultEnd: "19:00"},
+    // NOVAS LOJAS - GOIÂNIA
+    {id: "120658", name: "CATRAL - VILA ROSA - GOIÂNIA", type: "catral", defaultStart: "09:00", defaultEnd: "18:00"},
+    {id: "11859", name: "FAST SHOP - GOIÂNIA SHOPPING - GOIÂNIA", type: "fastshop", defaultStart: "10:00", defaultEnd: "22:00"},
+    {id: "8041", name: "CARREFOUR - CENTRO - GOIÂNIA", type: "carrefour", defaultStart: "09:00", defaultEnd: "18:00"},
+    {id: "120653", name: "CATRAL - SETOR COIMBRA - GOIÂNIA", type: "catral", defaultStart: "09:00", defaultEnd: "18:00"},
+    {id: "151114", name: "ELETROZEMA - VILA AURORA OESTE - GOIÂNIA", type: "eletrozema", defaultStart: "09:00", defaultEnd: "18:00"},
+    {id: "14735", name: "SAMS CLUB - JARDIM GOIÁS - GOIÂNIA", type: "samsclub", defaultStart: "10:00", defaultEnd: "20:00"},
+    {id: "8003", name: "CARREFOUR - JARDIM GOIÁS - GOIÂNIA", type: "carrefour", defaultStart: "09:00", defaultEnd: "18:00"},
+    {id: "149416", name: "FAST SHOP - FLAMBOYANT SHOPPING CENTER - GOIÂNIA", type: "fastshop", defaultStart: "10:00", defaultEnd: "22:00"}
+];
 
         // --- ESTADO ---
         let scheduleDays = JSON.parse(localStorage.getItem('scheduleDays')) || [];
@@ -690,4 +699,3 @@
     </script>
 </body>
 </html>
-
