@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5">
+    <meta name="theme-color" content="#1d4ed8"> 
+    <title>Panasonic · Estoque & Concorrência</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <style>
+        body { font-family: 'Roboto', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        /* Oculta scrollbar para abas mas permite scroll */
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .table-scroll { overflow-x: auto; display: block; white-space: nowrap; }
+        
+        input, textarea { transition: all 0.2s; }
+        input:focus, textarea:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
+    </style>
+</head>
+<body class="bg-gray-100 pb-24">
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAyfJtCTZdIt5IUG5BZNmDd9UiaKBIyKZY",
+            authDomain: "arenadeconhecimento.firebaseapp.com",
+            databaseURL: "https://arenadeconhecimento-default-rtdb.firebaseio.com",
+            projectId: "arenadeconhecimento",
+            storageBucket: "arenadeconhecimento.firebasestorage.app",
+            messagingSenderId: "889132093510",
+            appId: "1:889132093510:web:d9d7ddd92fec82d247ba47"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const concorrentesRef = db.ref('concorrentes');
+    </script>
+
+    <header class="bg-blue-700 text-white p-4 sticky top-0 z-50 shadow-md flex justify-between items-center">
+        <div class="flex items-center gap-2">
+            <h1 class="text-lg font-bold tracking-wide">Panasonic Estoque & Concorrência</h1>
+        </div>
+        <button id="reset-top" class="text-xs bg-blue-800 hover:bg-blue-900 px-3 py-1 rounded-full transition">
+            <i class="fas fa-eraser mr-1"></i> Limpar
+        </button>
+    </header>
+
+    <div class="container mx-auto p-4 max-w-6xl">
+        
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-3 rounded-r mb-6 shadow-sm">
+            <p class="text-blue-800 text-xs font-bold uppercase tracking-wider mb-1">Coleta de Dados</p>
+            <h2 class="text-gray-800 font-bold text-sm">Levantamento de Estoque e Preços Concorrentes</h2>
+        </div>
+
+        <div class="space-y-4">
+            
+            <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm">
+                <h3 class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-4 flex items-center">
+                    <i class="fas fa-store mr-2"></i> Dados da Loja
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1 ml-1">Revenda</label>
+                        <input type="text" id="revenda" placeholder="Nome da Loja" class="w-full bg-gray-50 p-3 rounded-xl border border-gray-200 focus:border-blue-500 text-gray-700 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1 ml-1">Data</label>
+                        <input type="date" id="data" class="w-full bg-gray-50 p-3 rounded-xl border border-gray-200 focus:border-blue-500 text-gray-700 text-sm">
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm">
+                <h3 class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-4 flex items-center">
+                    <i class="fas fa-users mr-2"></i> Equipe
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1 ml-1">Consultor(a)</label>
+                        <input type="text" id="consultor" placeholder="Seu nome" class="w-full bg-gray-50 p-3 rounded-xl border border-gray-200 focus:border-blue-500 text-gray-700 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1 ml-1">Coordenador</label>
+                        <input type="text" id="coordenador" placeholder="Seu coordenador" class="w-full bg-gray-50 p-3 rounded-xl border border-gray-200 focus:border-blue-500 text-gray-700 text-sm">
+                    </div>
+                </div>
+            </div>
+
+            <datalist id="listaConcorrentes"></datalist>
+
+            <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border-2 border-blue-100">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-blue-600 font-bold text-lg">Tabela de Produtos</h3>
+                </div>
+
+                <div class="mb-4 flex overflow-x-auto hide-scrollbar gap-2 border-b border-gray-100 pb-2">
+                    <a href="#refrigerador" class="tab-link whitespace-nowrap text-xs font-bold px-3 py-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition">Refrigerador</a>
+                    <a href="#lavadora" class="tab-link whitespace-nowrap text-xs font-bold px-3 py-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition">Lavadora</a>
+                    <a href="#microondas" class="tab-link whitespace-nowrap text-xs font-bold px-3 py-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition">Microondas</a>
+                    <a href="#forno" class="tab-link whitespace-nowrap text-xs font-bold px-3 py-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition">Forno/Cooktop</a>
+                    <a href="#pessoais" class="tab-link whitespace-nowrap text-xs font-bold px-3 py-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition">Cuidados Pessoais</a>
+                </div>
+
+                <div id="produtos-container" class="space-y-6"></div>
+            </div>
+
+            <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm">
+                <h3 class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-3 flex items-center">
+                    <i class="fas fa-info-circle mr-2"></i> Observações
+                </h3>
+                <textarea id="obs" placeholder="Observações gerais, destaques de vendas, promoções da concorrência..." rows="3" class="w-full bg-gray-50 p-3 rounded-xl border border-gray-200 focus:border-blue-500 text-gray-700 text-sm transition resize-none"></textarea>
+            </div>
+            
+            <div class="flex gap-3 justify-center pt-2">
+                <button id="salvarRascunho" class="flex-1 bg-white border border-gray-300 text-gray-600 font-bold py-2.5 px-4 rounded-xl shadow-sm hover:bg-gray-50 transition text-sm">
+                    <i class="fas fa-save mr-1"></i> Salvar Rascunho
+                </button>
+                <button id="carregarRascunho" class="flex-1 bg-white border border-gray-300 text-gray-600 font-bold py-2.5 px-4 rounded-xl shadow-sm hover:bg-gray-50 transition text-sm">
+                    <i class="fas fa-folder-open mr-1"></i> Carregar
+                </button>
+            </div>
+            
+            <div class="h-8"></div>
+        </div>
+    </div>
+
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-40">
+        <div class="max-w-6xl mx-auto flex gap-2">
+            <button id="gerarWhatsApp" class="flex-1 bg-green-500 text-white font-bold py-3 rounded-xl shadow-md hover:bg-green-600 active:scale-95 transition text-sm flex items-center justify-center">
+                <i class="fab fa-whatsapp text-lg mr-1"></i> WhatsApp
+            </button>
+            <button id="gerarExcel" class="flex-1 bg-emerald-600 text-white font-bold py-3 rounded-xl shadow-md hover:bg-emerald-700 active:scale-95 transition text-sm flex items-center justify-center">
+                <i class="fas fa-file-excel mr-1"></i> Excel
+            </button>
+            <button id="gerarPDF" class="flex-1 bg-blue-600 text-white font-bold py-3 rounded-xl shadow-md hover:bg-blue-700 active:scale-95 transition text-sm flex items-center justify-center">
+                <i class="fas fa-file-pdf mr-1"></i> PDF
+            </button>
+            <button id="copiarTexto" class="bg-gray-800 text-white font-bold py-3 px-4 rounded-xl shadow-md hover:bg-gray-900 active:scale-95 transition text-sm flex items-center justify-center" title="Copiar Texto">
+                <i class="fas fa-copy"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const categorias = [
+                { id: 'refrigerador', nome: 'REFRIGERADOR', modelos: [
+                    "NR-BB71GVFB", "NR-BB71GV7B", "NR-BB71PVFX", "NR-BB71PV7X", "NR-BB71PV4B",
+                    "NR-BB64PV1X", "NR-BB64PV1B", "NR-BB64PV2B", "NR-BB65GVFB", "NR-BB65GV7B",
+                    "NR-BB41GV1B", "NR-BB41GV2B", "NR-BB41PV1T", "NR-BB41PV2T", "NR-BT56PD4W",
+                    "NR-BT56PD4X", "NR-BT41PD1X", "NR-BT41PD1W", "NR-BT41PD2W", "NR-BT44PV3X",
+                    "NR-BT44PV3B", "NR-BT71PV4W", "NR-BT71PV4X",  "NR-DB69", "NR-DB99"
+                ] },
+                { id: 'lavadora', nome: 'LAVADORA', modelos: [
+                    "NA-F120B1W", "NA-F120B1TA", "NA-F120B5G", "NA-F130B1W", "NA-F130B1T",
+                    "NA-F140B1W", "NA-F150B1T", "NA-F150B1W", "NA-F160B6W", "NA-F170B7W",
+                    "NA-F180D1WA", "NA-F180P7T", "NA-F190G1BW", "NA-F190G1B", "NA-S26MK1LB"
+                ] },
+                { id: 'microondas', nome: 'MICROONDAS', modelos: [
+                    "NN-ST25L", "NN-ST27L", "NN-ST55L", "NN-ST65L", "NN-GT68L",
+                    "NN-CD89", "NN-ST67L", "NN-ST61N", "NN-ST66N", "NN-ST67L"
+                ] },
+                { id: 'forno', nome: 'FORNO / COOKTOP', modelos: [
+                    "NN-GB68QBRUK", "NN-GB68QSRUK", "HL-CX668SRPK", "HL-CX672BRPK", "NP-6M2FTKBRP",
+                    "NP-6M1MBKBRP", "KY-W648CLRPK", "KY-T937XLRPK", "FV-6HSUB2", "FV-9HSDB2"
+                ] },
+                { id: 'pessoais', nome: 'CUIDADOS PESSOAIS', modelos: [
+                    "ER-GK20", "ER-GN30", "ER-GN25", "ER-GK80", "ER-GB80",
+                    "ER-389X", "EW-DJ10", "ER389X"
+                ] }
+            ];
+
+            let concorrentesSet = new Set();
+            const datalist = document.getElementById('listaConcorrentes');
+
+            function carregarConcorrentes() {
+                concorrentesRef.on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    concorrentesSet.clear();
+                    if (data) {
+                        Object.keys(data).forEach(key => concorrentesSet.add(key));
+                    }
+                    atualizarDatalist();
+                });
+            }
+
+            function atualizarDatalist() {
+                datalist.innerHTML = '';
+                concorrentesSet.forEach(conc => {
+                    const opt = document.createElement('option');
+                    opt.value = conc;
+                    datalist.appendChild(opt);
+                });
+            }
+
+            function adicionarConcorrente(valor) {
+                if (!valor || typeof valor !== 'string') return;
+                valor = valor.trim();
+                if (valor === '' || concorrentesSet.has(valor)) return;
+                const safeKey = valor.replace(/[.#$\[\]]/g, '_');
+                concorrentesRef.child(safeKey).set(true);
+            }
+
+            // Geração da Tabela no HTML (Adaptado visual)
+            const container = document.getElementById('produtos-container');
+            function renderizarTabelas() {
+                let html = '';
+                categorias.forEach(cat => {
+                    html += `<div id="${cat.id}" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6 scroll-mt-24">`;
+                    
+                    // Cabeçalho da Tabela Azul Panasonic (Igual ao Header do Floorshare)
+                    html += `<div class="bg-blue-700 px-4 py-2 text-white text-sm font-bold tracking-wide flex items-center">`;
+                    html += `<i class="fas fa-box-open mr-2 opacity-80"></i> ${cat.nome}</div>`;
+                    
+                    html += `<div class="table-scroll"><table class="min-w-full divide-y divide-gray-200">`;
+                    html += `<thead class="bg-gray-50"><tr>`;
+                    html += `<th class="px-3 py-2 text-left text-xs font-bold text-gray-500 uppercase">Modelo</th>`;
+                    html += `<th class="px-3 py-2 text-left text-xs font-bold text-gray-500 uppercase">Preço R$</th>`;
+                    html += `<th class="px-3 py-2 text-left text-xs font-bold text-gray-500 uppercase">CD</th>`;
+                    html += `<th class="px-3 py-2 text-left text-xs font-bold text-gray-500 uppercase">Concorrente</th>`;
+                    html += `<th class="px-3 py-2 text-left text-xs font-bold text-gray-500 uppercase">Preço Conc.</th>`;
+                    html += `</tr></thead><tbody class="bg-white divide-y divide-gray-100">`;
+                    
+                    cat.modelos.forEach((modelo, index) => {
+                        const bgClass = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+                        html += `<tr class="${bgClass} hover:bg-blue-50 transition-colors">`;
+                        html += `<td class="px-3 py-2 whitespace-nowrap font-mono font-medium text-xs text-gray-800">${modelo}</td>`;
+                        html += `<td class="px-3 py-2"><input type="text" data-categoria="${cat.id}" data-modelo="${modelo}" data-campo="preco" placeholder="Ex: 3499" class="w-20 sm:w-24 border border-gray-300 rounded px-2 py-1 text-xs bg-white"></td>`;
+                        html += `<td class="px-3 py-2"><input type="number" data-categoria="${cat.id}" data-modelo="${modelo}" data-campo="cd" placeholder="Qtd" class="w-16 border border-gray-300 rounded px-2 py-1 text-xs bg-white"></td>`;
+                        html += `<td class="px-3 py-2"><input type="text" data-categoria="${cat.id}" data-modelo="${modelo}" data-campo="concorrente" list="listaConcorrentes" placeholder="Marca/Modelo" class="w-32 sm:w-40 border border-gray-300 rounded px-2 py-1 text-xs bg-white concorrente-input"></td>`;
+                        html += `<td class="px-3 py-2"><input type="text" data-categoria="${cat.id}" data-modelo="${modelo}" data-campo="precoConcorrente" placeholder="Ex: 3300" class="w-20 sm:w-24 border border-gray-300 rounded px-2 py-1 text-xs bg-white"></td>`;
+                        html += `</tr>`;
+                    });
+                    html += `</tbody></table></div></div>`;
+                });
+                container.innerHTML = html;
+
+                document.querySelectorAll('.concorrente-input').forEach(inp => {
+                    inp.addEventListener('blur', (e) => {
+                        const valor = e.target.value;
+                        if (valor) adicionarConcorrente(valor);
+                    });
+                });
+            }
+
+            function preencherDataHoje() {
+                const hoje = new Date();
+                document.getElementById('data').value = hoje.toISOString().split('T')[0];
+            }
+
+            // Funções de Rascunho
+            function salvarRascunho() {
+                const rascunho = {
+                    revenda: document.getElementById('revenda').value,
+                    data: document.getElementById('data').value,
+                    consultor: document.getElementById('consultor').value,
+                    coordenador: document.getElementById('coordenador').value,
+                    obs: document.getElementById('obs').value,
+                    produtos: []
+                };
+                document.querySelectorAll('#produtos-container input[data-modelo]').forEach(inp => {
+                    const categoria = inp.dataset.categoria;
+                    const modelo = inp.dataset.modelo;
+                    const campo = inp.dataset.campo;
+                    const valor = inp.value;
+                    let entry = rascunho.produtos.find(p => p.categoria === categoria && p.modelo === modelo);
+                    if (!entry) {
+                        entry = { categoria, modelo, preco: '', cd: '', concorrente: '', precoConcorrente: '' };
+                        rascunho.produtos.push(entry);
+                    }
+                    entry[campo] = valor;
+                });
+                localStorage.setItem('rascunhoEstoque', JSON.stringify(rascunho));
+                alert('✅ Rascunho salvo com sucesso!');
+            }
+
+            function carregarRascunho() {
+                const saved = localStorage.getItem('rascunhoEstoque');
+                if (!saved) { alert('Nenhum rascunho salvo encontrado.'); return; }
+                try {
+                    const rascunho = JSON.parse(saved);
+                    document.getElementById('revenda').value = rascunho.revenda || '';
+                    document.getElementById('data').value = rascunho.data || '';
+                    document.getElementById('consultor').value = rascunho.consultor || '';
+                    document.getElementById('coordenador').value = rascunho.coordenador || '';
+                    document.getElementById('obs').value = rascunho.obs || '';
+                    
+                    rascunho.produtos.forEach(p => {
+                        const precoInp = document.querySelector(`input[data-categoria="${p.categoria}"][data-modelo="${p.modelo}"][data-campo="preco"]`);
+                        if (precoInp) precoInp.value = p.preco || '';
+                        const cdInp = document.querySelector(`input[data-categoria="${p.categoria}"][data-modelo="${p.modelo}"][data-campo="cd"]`);
+                        if (cdInp) cdInp.value = p.cd || '';
+                        const concInp = document.querySelector(`input[data-categoria="${p.categoria}"][data-modelo="${p.modelo}"][data-campo="concorrente"]`);
+                        if (concInp) concInp.value = p.concorrente || '';
+                        const precoConcInp = document.querySelector(`input[data-categoria="${p.categoria}"][data-modelo="${p.modelo}"][data-campo="precoConcorrente"]`);
+                        if (precoConcInp) precoConcInp.value = p.precoConcorrente || '';
+                    });
+                    alert('✅ Dados carregados com sucesso!');
+                } catch (e) {
+                    alert('Erro ao carregar o rascunho.');
+                }
+            }
+
+            // Gerador de Texto (WhatsApp/Copiar)
+            function gerarTextoCompleto() {
+                let texto = '*📊 ESTOQUE E CONCORRÊNCIA*\n\n';
+                
+                texto += `*🏢 Revenda:* ${document.getElementById('revenda').value || '-'}\n`;
+                const d = document.getElementById('data').value;
+                texto += `*📅 Data:* ${d ? d.split('-').reverse().join('/') : '-'}\n`;
+                texto += `*👤 Consultor:* ${document.getElementById('consultor').value || '-'}\n`;
+                texto += `*👥 Coord:* ${document.getElementById('coordenador').value || '-'}\n\n`;
+
+                let itensEncontrados = false;
+
+                categorias.forEach(cat => {
+                    let catTexto = `🔹 *${cat.nome}*\n`;
+                    let temProdutoPreenchido = false;
+
+                    cat.modelos.forEach(modelo => {
+                        const preco = document.querySelector(`input[data-categoria="${cat.id}"][data-modelo="${modelo}"][data-campo="preco"]`)?.value.trim();
+                        const cd = document.querySelector(`input[data-categoria="${cat.id}"][data-modelo="${modelo}"][data-campo="cd"]`)?.value.trim();
+                        const conc = document.querySelector(`input[data-categoria="${cat.id}"][data-modelo="${modelo}"][data-campo="concorrente"]`)?.value.trim();
+                        const precoConc = document.querySelector(`input[data-categoria="${cat.id}"][data-modelo="${modelo}"][data-campo="precoConcorrente"]`)?.value.trim();
+                        
+                        if (preco || cd || conc || precoConc) {
+                            temProdutoPreenchido = true;
+                            itensEncontrados = true;
+                            
+                            catTexto += `▪️ *${modelo}*\n`;
+                            if(preco || cd) {
+                                catTexto += `  Pan: ${preco ? 'R$ '+preco : '-'} | CD: ${cd || '0'}\n`;
+                            }
+                            if(conc || precoConc) {
+                                catTexto += `  Conc: ${conc || '-'} | ${precoConc ? 'R$ '+precoConc : '-'}\n`;
+                            }
+                            catTexto += `\n`;
+                        }
+                    });
+
+                    if (temProdutoPreenchido) {
+                        texto += catTexto;
+                    }
+                });
+
+                if(!itensEncontrados) {
+                    texto += "Nenhum produto preenchido.\n\n";
+                }
+
+                const obs = document.getElementById('obs').value.trim();
+                if (obs) {
+                    texto += `*📝 OBSERVAÇÕES:*\n${obs}\n`;
+                }
+
+                return texto;
+            }
+
+            // --- EXCEL ---
+            function gerarExcel() {
+                const revenda = document.getElementById('revenda').value || '-';
+                const dataRaw = document.getElementById('data').value;
+                const dataFormatada = dataRaw ? dataRaw.split('-').reverse().join('/') : '-';
+                const consultor = document.getElementById('consultor').value || '-';
+                const coordenador = document.getElementById('coordenador').value || '-';
+                const obs = document.getElementById('obs').value.trim();
+
+                const excelData = [];
+                excelData.push(["ESTOQUE E CONCORRÊNCIA - PANASONIC"]);
+                excelData.push(["Revenda:", revenda, "Data:", dataFormatada]);
+                excelData.push(["Consultor:", consultor, "Coordenador:", coordenador]);
+                excelData.push([]); 
+                
+                excelData.push(["CATEGORIA", "MODELO PANASONIC", "PREÇO PANASONIC (R$)", "ESTOQUE CD", "CONCORRENTE DIRETO", "PREÇO CONCORRENTE (R$)"]);
+
+                let teveProduto = false;
+                categorias.forEach(cat => {
+                    cat.modelos.forEach(modelo => {
+                        const preco = document.querySelector(`input[data-categoria="${cat.id}"][data-modelo="${modelo}"][data-campo="preco"]`)?.value.trim();
+                        const cd = document.querySelector(`input[data-categoria="${cat.id}"][data-modelo="${modelo}"][data-campo="cd"]`)?.value.trim();
+                        const conc = document.querySelector(`input[data-categoria="${cat.id}"][data-modelo="${modelo}"][data-campo="concorrente"]`)?.value.trim();
+                        const precoConc = document.querySelector(`input[data-categoria="${cat.id}"][data-modelo="${modelo}"][data-campo="precoConcorrente"]`)?.value.trim();
+                        
+                        if (preco || cd || conc || precoConc) {
+                            teveProduto = true;
+                            excelData.push([ cat.nome, modelo, preco ? `R$ ${preco}` : "-", cd || "0", conc || "-", precoConc ? `R$ ${precoConc}` : "-" ]);
+                        }
+                    });
+                });
+
+                if (!teveProduto) excelData.push(["Nenhum produto preenchido."]);
+                if (obs) { excelData.push([]); excelData.push(["OBSERVAÇÕES:"]); excelData.push([obs]); }
+
+                const ws = XLSX.utils.aoa_to_sheet(excelData);
+                ws['!cols'] = [{ wch: 22 }, { wch: 20 }, { wch: 22 }, { wch: 15 }, { wch: 35 }, { wch: 25 }];
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Relatorio");
+                XLSX.writeFile(wb, revenda !== '-' ? `Estoque_${revenda.replace(/\s+/g, '_')}.xlsx` : `Estoque_Panasonic.xlsx`);
+            }
+
+            // --- PDF ---
+            function gerarPDF() {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+                
+                // Azul Panasonic = rgb(29, 78, 216) que é o bg-blue-700 do tailwind
+                doc.setFillColor(29, 78, 216); 
+                doc.rect(0, 0, doc.internal.pageSize.width, 25, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(16);
+                doc.setFont('helvetica', 'bold');
+                doc.text('ESTOQUE E CONCORRÊNCIA', 14, 16);
+                
+                doc.setTextColor(60, 60, 60);
+                doc.setFontSize(9);
+                
+                const revenda = document.getElementById('revenda').value || '-';
+                const dataRaw = document.getElementById('data').value;
+                const dataFormatada = dataRaw ? dataRaw.split('-').reverse().join('/') : '-';
+                const consultor = document.getElementById('consultor').value || '-';
+                const coordenador = document.getElementById('coordenador').value || '-';
+
+                doc.setFont('helvetica', 'bold'); doc.text(`Revenda:`, 14, 34); doc.setFont('helvetica', 'normal'); doc.text(revenda, 30, 34);
+                doc.setFont('helvetica', 'bold'); doc.text(`Data:`, 14, 40); doc.setFont('helvetica', 'normal'); doc.text(dataFormatada, 24, 40);
+                
+                doc.setFont('helvetica', 'bold'); doc.text(`Consultor:`, 110, 34); doc.setFont('helvetica', 'normal'); doc.text(consultor, 128, 34);
+                doc.setFont('helvetica', 'bold'); doc.text(`Coord.:`, 110, 40); doc.setFont('helvetica', 'normal'); doc.text(coordenador, 122, 40);
+
+                let finalY = 48;
+                let teveProduto = false;
+
+                categorias.forEach(cat => {
+                    const linhasTabela = [];
+                    cat.modelos.forEach(modelo => {
+                        const preco = document.querySelector(`input[data-categoria="${cat.id}"][data-modelo="${modelo}"][data-campo="preco"]`)?.value.trim();
+                        const cd = document.querySelector(`input[data-categoria="${cat.id}"][data-modelo="${modelo}"][data-campo="cd"]`)?.value.trim();
+                        const conc = document.querySelector(`input[data-categoria="${cat.id}"][data-modelo="${modelo}"][data-campo="concorrente"]`)?.value.trim();
+                        const precoConc = document.querySelector(`input[data-categoria="${cat.id}"][data-modelo="${modelo}"][data-campo="precoConcorrente"]`)?.value.trim();
+                        
+                        if (preco || cd || conc || precoConc) {
+                            linhasTabela.push([modelo, preco, cd, conc, precoConc]);
+                        }
+                    });
+
+                    if (linhasTabela.length > 0) {
+                        teveProduto = true;
+                        doc.autoTable({
+                            startY: finalY,
+                            head: [[cat.nome, 'PREÇO (R$)', 'CD', 'CONCORRENTE', 'R$ CONC.']],
+                            body: linhasTabela,
+                            theme: 'grid',
+                            headStyles: { fillColor: [29, 78, 216], textColor: 255, fontStyle: 'bold' },
+                            alternateRowStyles: { fillColor: [249, 250, 251] }, // gray-50
+                            styles: { fontSize: 8, cellPadding: 3, textColor: [55, 65, 81] }, // gray-700
+                            columnStyles: {
+                                0: { fontStyle: 'bold', cellWidth: 45 },
+                                1: { halign: 'right', cellWidth: 25 },
+                                2: { halign: 'center', cellWidth: 20 },
+                                3: { cellWidth: 55 },
+                                4: { halign: 'right', cellWidth: 25 }
+                            },
+                            margin: { left: 14, right: 14 }
+                        });
+                        finalY = doc.lastAutoTable.finalY + 8;
+                    }
+                });
+
+                if (!teveProduto) {
+                    doc.setFontSize(10); doc.setFont('helvetica', 'italic'); doc.text("Nenhum produto preenchido.", 14, finalY);
+                    finalY += 10;
+                }
+
+                const obs = document.getElementById('obs').value.trim();
+                if (obs) {
+                    if (finalY > doc.internal.pageSize.height - 30) { doc.addPage(); finalY = 20; }
+                    doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.text('Observações:', 14, finalY);
+                    doc.setFont('helvetica', 'normal');
+                    const splitObs = doc.splitTextToSize(obs, doc.internal.pageSize.width - 28);
+                    doc.text(splitObs, 14, finalY + 6);
+                }
+
+                doc.save(revenda !== '-' ? `Estoque_${revenda.replace(/\s+/g, '_')}.pdf` : `Estoque_Panasonic.pdf`);
+            }
+
+            function copiarTexto() {
+                const texto = gerarTextoCompleto();
+                navigator.clipboard.writeText(texto).then(() => {
+                    alert('✅ Relatório copiado!');
+                }).catch(() => {
+                    alert('Erro ao copiar.');
+                });
+            }
+
+            function abrirWhatsApp() {
+                const texto = encodeURIComponent(gerarTextoCompleto());
+                window.open(`https://api.whatsapp.com/send?text=${texto}`, '_blank');
+            }
+
+            // Botoes Topo
+            document.getElementById('reset-top').addEventListener('click', () => {
+                if(confirm('Limpar todos os dados da tela?')) {
+                    document.location.reload();
+                }
+            });
+
+            window.addEventListener('DOMContentLoaded', () => {
+                renderizarTabelas();
+                preencherDataHoje();
+                carregarConcorrentes();
+
+                document.getElementById('salvarRascunho').addEventListener('click', salvarRascunho);
+                document.getElementById('carregarRascunho').addEventListener('click', carregarRascunho);
+                document.getElementById('gerarWhatsApp').addEventListener('click', abrirWhatsApp);
+                document.getElementById('copiarTexto').addEventListener('click', copiarTexto);
+                document.getElementById('gerarExcel').addEventListener('click', gerarExcel);
+                document.getElementById('gerarPDF').addEventListener('click', gerarPDF);
+
+                document.querySelectorAll('.tab-link').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const id = link.getAttribute('href').substring(1);
+                        // Ajuste por causa do header fixo
+                        const element = document.getElementById(id);
+                        if(element) {
+                            const y = element.getBoundingClientRect().top + window.pageYOffset - 80;
+                            window.scrollTo({top: y, behavior: 'smooth'});
+                        }
+                    });
+                });
+            });
+
+        })();
+    </script>
+</body>
+</html>
